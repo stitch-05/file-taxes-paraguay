@@ -89,7 +89,6 @@ pad_to_two() {
 }
 
 COOKIES_FILE=cookies.txt
-WGET_QUIET="-qO-" # Debug -O-
 
 URL_HOST="https://marangatu.set.gov.py"
 URL_BASE="$URL_HOST/eset"
@@ -114,7 +113,7 @@ UA=$(head -$LINE $UA_FILE | tail -1)
 
 echo "Checking session..."
 
-HOME=$(wget $WGET_QUIET --load-cookies $COOKIES_FILE $URL_BASE)
+HOME=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE $URL_BASE)
 
 if echo $HOME | grep -q "/eset/logout"; then
   echo "Logged in"
@@ -122,7 +121,7 @@ else
   echo "Logging in..."
 
   random_sleep
-  LOGIN=$(wget $WGET_QUIET --save-cookies $COOKIES_FILE --keep-session-cookies --post-data "usuario=$USERNAME&clave=$PASSWORD" --auth-no-challenge --user-agent="$UA" $URL_BASE/$METHOD_AUTH)
+  LOGIN=$(wget $WGET_FLAGS $WGET_OUTPUT --save-cookies $COOKIES_FILE --keep-session-cookies --post-data "usuario=$USERNAME&clave=$PASSWORD" --auth-no-challenge --user-agent="$UA" $URL_BASE/$METHOD_AUTH)
 
   if echo $LOGIN | grep -q "Usuario o Contraseña incorrectos"; then
     echo "Error: Incorrect login credentials"
@@ -136,7 +135,7 @@ TOKEN=$(encrypt {})
 TOKEN=$(urlencode $TOKEN)
 
 random_sleep
-PROFILE=$(wget $WGET_QUIET --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_PROFILE?t3=$TOKEN")
+PROFILE=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_PROFILE?t3=$TOKEN")
 
 CEDULA=$(echo $PROFILE | jq --raw-output '.rucActivo' 2>/dev/null)
 DV=$(echo $PROFILE | jq --raw-output '.dvActivo' 2>/dev/null)
@@ -157,12 +156,12 @@ fi
 
 echo "Preparing tax form..."
 random_sleep
-MENU=$(wget $WGET_QUIET --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_MENU?t3=$TOKEN")
+MENU=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_MENU?t3=$TOKEN")
 
 # Necessary step to be able to create form later
 METHOD_TAXPAYER=$(echo $MENU | jq --raw-output '.[] | select(.aplicacion == "'$FORM_AFFIDAVIT'") | .url')
 
-TAXPAYER=$(wget $WGET_QUIET --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_TAXPAYER")
+TAXPAYER=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_TAXPAYER")
 
 if ! echo $TAXPAYER | grep -q "Presentar Declaración"; then
   echo "Error: Tax payer not found"
@@ -176,7 +175,7 @@ TOKEN=$(encrypt '{"ruc":"'$CEDULA'","dv":"'$DV'","periodo":"'$YEAR$MONTH'","impu
 TOKEN=$(urlencode $TOKEN)
 
 random_sleep
-PERMIT=$(wget $WGET_QUIET --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_PERMITE?t3=$TOKEN")
+PERMIT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_PERMITE?t3=$TOKEN")
 
 IS_PERMITED=$(echo $PERMIT | jq --raw-output '.permite')
 
@@ -187,7 +186,7 @@ fi
 
 # Load tax form
 PERMIT_URL=$(echo $PERMIT | jq --raw-output '.url')
-DECLARATION_FORM=$(wget $WGET_QUIET --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_HOST$PERMIT_URL")
+DECLARATION_FORM=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_HOST$PERMIT_URL")
 
 # Get name and value from HTML inputs
 NAMES=$(xmllint --html --xpath "//input/@name" 2>/dev/null - <<< "$DECLARATION_FORM")
@@ -250,7 +249,7 @@ rm -rf $TMP_JSON
 # TODO: submit the form and get a response
 echo "Sending tax form..."
 random_sleep
-FINAL=$(wget $WGET_QUIET --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent="$UA" --post-data=$DATA "$URL_BASE/$METHOD_PRESENTAR")
+FINAL=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent="$UA" --post-data=$DATA "$URL_BASE/$METHOD_PRESENTAR")
 
 STATUS=$(echo $FINAL | jq --raw-output '.exito' 2>/dev/null)
 
