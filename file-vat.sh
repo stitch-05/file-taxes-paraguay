@@ -112,7 +112,7 @@ pad_to_two() {
   printf "%0*d\n" 2 $1
 }
 
-COOKIES_FILE=cookies.txt
+COOKIES_FILE=$WORKING_DIR/cookies.txt
 
 URL_HOST="https://marangatu.set.gov.py"
 URL_BASE="$URL_HOST/eset"
