@@ -8,6 +8,7 @@ if [[ ! "$USERNAME" || ! "$PASSWORD"  ]]; then
   echo "Please set login credentials in .env or .env.local"
 fi
 
+# Make sure to install jq
 command -v jq >/dev/null 2>&1 || { 
   echo >&2 "'jq' is required but not installed. Aborting."; 
   
@@ -27,6 +28,27 @@ command -v jq >/dev/null 2>&1 || {
     ;;
     *)          
       echo "Install jq manually using your system's package manager or source code."
+  esac
+
+  exit 1; 
+}
+
+# Make sure to install xmllint
+command -v xmllint >/dev/null 2>&1 || { 
+  echo >&2 "'xmllint' is required but not installed. Aborting."; 
+  
+  OS="$(uname -s)"
+
+  case "${OS}" in
+    Linux*)
+      echo "To install on a Debian based distro, run:"
+      echo "sudo apt update && sudo apt install libxml2-utils"
+      echo ""
+      echo "To install on a RedHat based distro, run:"
+      echo "sudo dnf install libxml2-utils"
+    ;;
+    *)          
+      echo "Install xmllint manually using your system's package manager or source code."
   esac
 
   exit 1; 
