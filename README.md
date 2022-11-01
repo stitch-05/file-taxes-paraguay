@@ -12,7 +12,7 @@ Go to a directory of your choice and clone the repo:
 git clone https://github.com/stitch-05/file-vat-paraguay.git && cd file-vat-paraguay
 ````
 
-Either fill in your login information (`USER` and `PASSWORD`) in `.env` or create `.env.local` and add those parameters there.
+Either fill in your login information (`USERNAME` and `PASSWORD`) in `.env` or create `.env.local` and add those parameters there.
 
 ## Run
 ````
