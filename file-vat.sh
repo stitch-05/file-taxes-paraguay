@@ -129,7 +129,7 @@ TYPE="211"
 FORM="120"
 
 # Load random user agent
-UA_FILE=user-agents.txt
+UA_FILE=$WORKING_DIR/user-agents.txt
 RAND=$(od -d -N2 -An /dev/urandom)
 LINES=$(cat $UA_FILE | wc -l)
 LINE=$(( RAND % LINES + 1 ))
