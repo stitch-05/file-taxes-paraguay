@@ -5,7 +5,34 @@ As a Paraguay tax resident (having a Tax ID) you have to file VATs (form 211) on
 
 Feel free to [support me](#support-me) if you find this helfpul. Thank you!
 
-## Basic Setup
+## 1) Dependencies (choose one)
+You need these two packages to parse json and html: `jq`, `xmllint`
+
+### 1.1) Install on Mac
+Install [brew](https://brew.sh/) first if you haven't done so already.
+
+Now install `jq`:
+````
+brew install jq
+````
+
+`xmllint` is installed by default on MacOS Ventura (and perhaps older).
+
+### 1.2) Install on Debian based distros
+Update repo and install the packages:
+
+````
+sudo apt update && sudo apt install jq libxml2-utils
+````
+
+### 1.3) Install on RedHad distros
+Install the packages:
+
+````
+sudo dnf install jq libxml2-utils
+````
+
+## 2) Basic Setup
 Go to a directory of your choice and clone the repo:
 
 ````
@@ -14,13 +41,13 @@ git clone https://github.com/stitch-05/file-vat-paraguay.git && cd file-vat-para
 
 Either fill in your login information (`USERNAME` and `PASSWORD`) in `.env` or create `.env.local` and add those parameters there.
 
-## Run
+## 3) Run
 ````
 ./file-vat.sh
 ````
 It may take up to a minute for the script to finish because of random pauses between each request. Let it finish.
 
-## Setup cron job (optional)
+## 4) Setup cron job (optional)
 You can use cron to run the script automatically on the 2nd day of each month at 3am of your local time.
 
 Open crontab for editing:
@@ -35,11 +62,11 @@ and add the following:
 0 3 2 * * /home/<user>/<path to script/file-vat.sh >/dev/null 2>&1
 ````
 
-## Receive Notifications (optional)
+## 5) Receive Notifications (optional)
 
 Receive a notification everytime the script fails or succeeds to file VAT. 
 
-### Pushover
+### 5.1) Pushover
 To use [Pushover](https://pushover.net/) as your notification service, create your pushover token and add the following to `.env` or `.env.local`:
 
 ````
@@ -49,7 +76,7 @@ PUSHOVER_TOKEN=<your pushover token>
 PUSHOVER_USER=<your pushover user>
 ````
 
-### Signal
+### 5.2) Signal
 TBA
 
 ## Support me
