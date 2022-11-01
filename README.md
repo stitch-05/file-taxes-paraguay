@@ -62,9 +62,15 @@ If you find this script helpful, your Bitcoin or Monero donation is very much ap
 bc1qxwuj3rty9krmtaf6tvah6cktkaktfgx0jagtva
 ````
 
+![qr-btc](https://user-images.githubusercontent.com/104267488/199220610-878b531d-5387-4fa3-b99c-702d83dbe717.png)
+
+
 #### Monero Address
 ````
 87D74aNPpJs6cfJJStv9yj7LYaAW4oJcQX1YqzpvaGokYd2dhMeYzhPNHBrBUdzKrvW9LyFkL2xVBTrhT9rpNocAAH1Z2Qt
 ````
+
+![qr-xmr](https://user-images.githubusercontent.com/104267488/199220635-ae90a9cd-e4d4-4e34-b6ec-502c6f3b0517.png)
+
 
 # Thank you!
