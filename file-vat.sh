@@ -162,7 +162,6 @@ MENU=$(wget $WGET_QUIET --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BA
 # Necessary step to be able to create form later
 METHOD_TAXPAYER=$(echo $MENU | jq --raw-output '.[] | select(.aplicacion == "'$FORM_AFFIDAVIT'") | .url')
 
-random_sleep
 TAXPAYER=$(wget $WGET_QUIET --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_TAXPAYER")
 
 if ! echo $TAXPAYER | grep -q "Presentar Declaración"; then
@@ -244,9 +243,6 @@ done
 echo $(cat $TMP_JSON | sed 's/ //g') > $TMP_JSON
 
 DATA=$(cat $TMP_JSON)
-
-echo $DATA
-exit
 
 # Temporary json file no longer needed
 rm -rf $TMP_JSON
