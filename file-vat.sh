@@ -207,7 +207,7 @@ set +f
 CYP=$(echo $PERMIT_URL | awk -F'[=&]' '{print $2}')
 
 # Create a temporary json file for easier json operations
-TMP_JSON=tmp.json
+TMP_JSON=/tmp/tmp.json
 rm -rf $TMP_JSON
 touch $TMP_JSON
 
