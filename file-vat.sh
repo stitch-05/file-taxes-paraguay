@@ -1,8 +1,10 @@
 #!/bin/bash
 
+WORKING_DIR=$(dirname "$0")
+
 # Load variables
-. .env
-. .env.local
+. $WORKING_DIR/.env
+. $WORKING_DIR/.env.local
 
 if [[ ! "$USERNAME" || ! "$PASSWORD"  ]]; then
   echo "Please set login credentials in .env or .env.local"
@@ -85,7 +87,7 @@ send_message() {
 
   case $NOTIFICATION_SERVICE in
     pushover)
-      ./services/pushover.sh "$1" "$2"
+      $WORKING_DIR/services/pushover.sh "$1" "$2"
     ;;
 
     # signal)

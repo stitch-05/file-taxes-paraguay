@@ -1,8 +1,10 @@
 #!/bin/bash
 
+WORKING_DIR=$(dirname "$0")
+
 # Load variables
-. $PWD/.env
-. $PWD/.env.local
+. $WORKING_DIR/../.env
+. $WORKING_DIR/../.env.local
 
 TITLE=$1
 MESSAGE=$2
