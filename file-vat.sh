@@ -283,9 +283,8 @@ if [[ "$STATUS" = "false" ]]; then
 
   send_message "Error" "$ERROR"
 else
-  echo "Finished!"
+  echo "VAT filed!"
   URL=$(echo $FINAL | jq --raw-output '.herramientas[1].url' 2>/dev/null)
-  echo "You can view your finalized application here (after you login in your browser): $URL_HOST/$URL"
 
   send_message "Success!" "Paraguay VAT filed successfully."
 fi
