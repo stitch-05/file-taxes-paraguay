@@ -22,7 +22,7 @@ command -v jq >/dev/null 2>&1 || {
       echo "sudo dnf install jq"
     ;;
     Darwin*)
-      echo "To install on MacOSz, run:"
+      echo "To install on MacOS, run:"
       echo "brew install jq"
     ;;
     *)          
