@@ -1,4 +1,4 @@
-# Automatically file VATs in Paraguay
+# Automatically file taxes in Paraguay
 As a Paraguay tax resident (having a Tax ID) you have to file VATs (form 211) once a month and sometimes even the summary of receipts (even if you never claimed any). This script files all necessary taxes for you (in case of VAT it files 0 guarani tax).
 
 > :warning: ** Don't use the script if your VAT is not 0!
