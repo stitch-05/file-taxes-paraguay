@@ -64,14 +64,14 @@ PROCESS_RECEIPTS=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --
 STATUS=$(echo $PROCESS_RECEIPTS | jq --raw-output '.exito' 2>/dev/null)
 
 if [[ "$STATUS" = "" ]]; then
-  ERROR="Error: Filing form $FORM"
+  ERROR="Error: Filing receipt form $FORM"
 
   echo $ERROR
   send_message "Error" "$ERROR"
 
   exit 1
 else
-  MESSAGE="Receipts for period $PERIOD filed!"
+  MESSAGE="Paraguay receipts for period $PERIOD filed successfully!"
 
   echo "Success: $MESSAGE"
   send_message "Success!" $MESSAGE
