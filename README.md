@@ -77,7 +77,12 @@ PUSHOVER_USER=<your pushover user>
 ````
 
 ### 5.2) Signal
-TBA
+To use [Signal](https://signal.org) as your notification service, install [signal-cli](https://github.com/asamk/signal-cli) (beyond the scope of this tutorial) and add the following to `.env` or `.env.local`:
+````
+NOTIFICATION_SERVICE="signal"
+
+SIGNAL_NUMBER=<your signal phone number>
+````
 
 ## Support me
 I spent a lot of time figuring out Paraguay's tax portal (kudos to Paraguay gov for making it fairly hard to automatize) and making it work. 

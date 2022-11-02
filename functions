@@ -24,8 +24,8 @@ urlencode() {
 }
 
 send_message() {
-  if [[ -z "$1" || -z "$2" ]]; then
-    echo "Notification error: No title or message defined"
+  if [[ -z "$2" ]]; then
+    echo "Notification error: No message defined"
     exit
   fi
 
@@ -34,9 +34,9 @@ send_message() {
       $WORKING_DIR/services/pushover.sh "$1" "$2"
     ;;
 
-    # signal)
-    #   ./services/signal.sh "$2"
-    # ;;
+    signal)
+      ./services/signal.sh "$2"
+    ;;
   *)
     echo "No notification service configured"
     exit 1
