@@ -115,10 +115,10 @@ if [[ "$STATUS" = "false" ]]; then
 
   exit 1
 else
-  echo "VAT filed!"
-  URL=$(echo $FINAL | jq --raw-output '.herramientas[1].url' 2>/dev/null)
+  MESSAGE="Paraguay VAT filed successfully!"
 
-  send_message "Success!" "Paraguay VAT filed successfully."
+  echo "Success: $MESSAGE"
+  send_message "Success!" $MESSAGE
 
   exit 0
 fi
