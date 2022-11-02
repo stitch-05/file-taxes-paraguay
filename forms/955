@@ -1,0 +1,80 @@
+#!/bin/bash
+
+METHOD_TALON="di/talonresumen/procesarTalon"
+METHOD_OPERATIONS="di/gestion/listarTiposOperaciones"
+
+# Tax form related data
+FORM_AFFIDAVIT="DI03100"
+# TAX="955"
+FORM="241"
+RECEIPT_MANAGEMENT_ID="6"
+
+# Necessary step to be able to create form later
+echo "Preparing receipt management..."
+
+METHOD_RECEIPT_MANAGEMENT=$(echo $MENU | jq --raw-output '.[] | select(.aplicacion == "'$FORM_AFFIDAVIT'") | .url')
+
+random_sleep
+RECEIPT_MANAGEMENT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_RECEIPT_MANAGEMENT")
+
+if ! echo $RECEIPT_MANAGEMENT | grep -q "Gestión de Comprobantes"; then
+  echo "Error: Not able to manage receipts"
+  exit 1
+fi
+
+# Get url of receipt forms
+echo "Getting access to receipt forms..."
+
+TOKEN_OPERATIONS=$(encrypt '{"ruc":"'$CEDULA'"}')
+TOKEN_OPERATIONS=$(urlencode $TOKEN_OPERATIONS)
+
+random_sleep
+OPERATIONS=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_OPERATIONS?t3=$TOKEN_OPERATIONS")
+
+CONFIRM_URL=$(echo $OPERATIONS | jq --raw-output '.[] | select(.id == "'$RECEIPT_MANAGEMENT_ID'") | .url')
+
+if [[ "$CONFIRM_URL" = "" ]]; then
+  echo "Error: No access to receipt forms"
+  exit 1
+fi
+
+# Load receipt forms and get the page url
+echo "Retrieving receipt forms..."
+
+random_sleep
+RECEIPT_FORMS=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_BASE/$CONFIRM_URL")
+
+if ! echo $RECEIPT_FORMS | grep -q "Registro de Comprobantes - Presentación de Talón Resumen"; then
+  echo "Error: No receipt forms available"
+  exit 1
+fi
+
+PERIOD=$(period)
+TOKEN_TALON=$(encrypt '{"periodo":'$PERIOD',"formulario":'$FORM'}')
+TOKEN_TALON=$(urlencode $TOKEN_TALON)
+
+# Submit the form
+echo "Sending tax form $FORM..."
+random_sleep
+
+echo "wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent=\"$UA\" \"$URL_BASE/$METHOD_TALON?t3=$TOKEN_TALON\""
+
+PROCESS_RECEIPTS=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent="$UA" "$URL_BASE/$METHOD_TALON?t3=$TOKEN_TALON")
+
+STATUS=$(echo $PROCESS_RECEIPTS | jq --raw-output '.exito' 2>/dev/null)
+
+if [[ "$STATUS" = "" ]]; then
+  ERROR="Error: Filing form $FORM"
+
+  echo $ERROR
+  send_message "Error" "$ERROR"
+
+  exit 1
+else
+  MESSAGE="Receipts for period $PERIOD filed!"
+
+  echo "Success: $MESSAGE"
+  send_message "Success!" $MESSAGE
+
+  exit 0
+fi

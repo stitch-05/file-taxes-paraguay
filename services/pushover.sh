@@ -3,8 +3,8 @@
 WORKING_DIR=$(dirname "$0")
 
 # Load variables
-. $WORKING_DIR/../.env
-. $WORKING_DIR/../.env.local
+[ -f $WORKING_DIR/../.env ] && . $WORKING_DIR/../.env
+[ -f $WORKING_DIR/../.env.local ] && . $WORKING_DIR/../.env.local
 
 TITLE=$1
 MESSAGE=$2

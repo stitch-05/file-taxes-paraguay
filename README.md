@@ -43,7 +43,7 @@ Either fill in your login information (`USERNAME` and `PASSWORD`) in `.env` or c
 
 ## 3) Run
 ````
-./file-vat.sh
+./file-taxes.sh
 ````
 It may take up to a minute for the script to finish because of random pauses between each request. Let it finish.
 
@@ -59,7 +59,7 @@ crontab -e
 and add the following:
 
 ````
-0 3 2 * * /home/<user>/<path to script/file-vat.sh >/dev/null 2>&1
+0 3 2 * * /home/<user>/<path to script/file-taxes.sh >/dev/null 2>&1
 ````
 
 ## 5) Receive Notifications (optional)

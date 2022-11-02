@@ -1,0 +1,68 @@
+#!/bin/bash
+
+encrypt() {
+  if [[ ! -z "$1" ]]; then
+    KEY=707265696d707265736f436f72726563
+    IV=50506172736574696d65313773327733
+
+    echo -n $1 | openssl enc -aes128 -a -A -K $KEY -iv $IV
+  else
+    return 1;
+  fi
+}
+
+urlencode() {
+  local l=${#1}
+  for (( i = 0 ; i < l ; i++ )); do
+    local c=${1:i:1}
+    case "$c" in
+      [a-zA-Z0-9.~_-]) printf "$c" ;;
+      ' ') printf + ;;
+      *) printf '%%%.2X' "'$c"
+    esac
+  done
+}
+
+send_message() {
+  if [[ -z "$1" || -z "$2" ]]; then
+    echo "Notification error: No title or message defined"
+    exit
+  fi
+
+  case $NOTIFICATION_SERVICE in
+    pushover)
+      $WORKING_DIR/services/pushover.sh "$1" "$2"
+    ;;
+
+    # signal)
+    #   ./services/signal.sh "$2"
+    # ;;
+  *)
+    echo "No notification service configured"
+    exit 1
+  esac
+}
+
+random_sleep() {
+  MAX=4
+  RAND=$(od -d -N2 -An /dev/urandom)
+  RAND_NUM=$(( $RAND % $MAX + 1 ))
+
+  echo "Waiting ${RAND_NUM}s between requests..."
+  sleep $RAND_NUM
+}
+
+pad_to_two() {
+  printf "%0*d\n" 2 $1
+}
+
+period() {
+  YEAR=$(date +%Y)
+  MONTH=$(date +%m)
+
+  [ $MONTH -eq "01" ] && ((YEAR--)) || YEAR=$YEAR
+  [ $MONTH -eq "01" ] && MONTH=12 || ((MONTH--))
+  MONTH=$(pad_to_two $MONTH)
+
+  echo "$YEAR$MONTH"
+}
