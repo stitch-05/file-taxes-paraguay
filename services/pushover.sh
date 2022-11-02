@@ -27,3 +27,5 @@ curl -s \
 --form-string "device=iPhone12" \
 --form-string "html=1" \
 https://api.pushover.net/1/messages.json
+
+exit 0

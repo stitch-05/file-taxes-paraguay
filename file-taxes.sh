@@ -10,7 +10,7 @@ WORKING_DIR=$(dirname "$0")
 
 if [[ ! "$USERNAME" || ! "$PASSWORD"  ]]; then
   echo "Please set login credentials in .env or .env.local"
-  exit
+  exit 1
 fi
 
 # Make sure to install jq
@@ -90,7 +90,7 @@ else
 
   if echo $LOGIN | grep -q "Usuario o Contraseña incorrectos"; then
     echo "Error: Incorrect login credentials"
-    exit
+    exit 1
   else
     echo "Logged in"
   fi
@@ -110,7 +110,7 @@ if [[ ! "$NAME" = "" ]]; then
   echo "Welcome $(echo $NAME | awk '{print $2}')!"
 else
   echo "Error: Could not get user data"
-  exit
+  exit 1
 fi
 
 # See if there's any pending forms
