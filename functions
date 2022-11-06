@@ -29,13 +29,15 @@ send_message() {
     exit
   fi
 
+  echo "MSG:" "$1" "$2"
+
   case $NOTIFICATION_SERVICE in
     pushover)
-      $WORKING_DIR/services/pushover.sh "$1" "$2"
+      $WORKING_DIR/services/pushover.sh "$1" "${MESSAGE_PREFIX}$2"
     ;;
 
     signal)
-      ./services/signal.sh "$2"
+      $WORKING_DIR/services/signal.sh "${MESSAGE_PREFIX}$1"$'\n'"$2"
     ;;
   *)
     echo "No notification service configured"

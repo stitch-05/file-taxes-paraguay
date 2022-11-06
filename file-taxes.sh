@@ -50,7 +50,7 @@ command -v xmllint >/dev/null 2>&1 || {
       echo "sudo apt update && sudo apt install libxml2-utils"
       echo ""
       echo "To install on a RedHat based distro, run:"
-      echo "sudo dnf install libxml2-utils"
+      echo "sudo dnf install libxml2"
     ;;
     *)          
       echo "Install xmllint manually using your system's package manager or source code."
@@ -89,7 +89,7 @@ else
   LOGIN=$(wget $WGET_FLAGS $WGET_OUTPUT --save-cookies $COOKIES_FILE --keep-session-cookies --post-data "usuario=$USERNAME&clave=$PASSWORD" --auth-no-challenge --user-agent="$UA" $URL_BASE/$METHOD_AUTH)
 
   if echo $LOGIN | grep -q "Usuario o Contraseña incorrectos"; then
-    echo "Error: Incorrect login credentials"
+    send_message "Error" "Incorrect login credentials"
     exit 1
   else
     echo "Logged in"
@@ -109,7 +109,7 @@ NAME=$(echo $PROFILE | jq --raw-output '.nombre' 2>/dev/null)
 if [[ ! "$NAME" = "" ]]; then
   echo "Welcome $(echo $NAME | awk '{print $2}')!"
 else
-  echo "Error: Could not get user data"
+  send_message "Error" "Could not get user data"
   exit 1
 fi
 
@@ -122,8 +122,8 @@ PENDING=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agen
 PENDING_ACTIONS=$(echo "${PENDING}" | jq -r '.[] | @base64')
 
 if [[ ! "$PENDING_ACTIONS" = "" ]]; then
-  # Get the current list of menu items 
-  echo "Fetchin menu items..."
+  # Get the current list of menu items
+  echo "Fetching menu items..."
 
   random_sleep
   MENU=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_MENU?t3=$TOKEN")

@@ -13,6 +13,6 @@ if [ -z "$MESSAGE" ]; then
   exit 1
 fi
 
-signal-cli -a $SIGNAL_NUMBER send -m "$MESSAGE" $SIGNAL_NUMBER
+signal-cli -a "${SIGNAL_USER}" send -m "$MESSAGE" "${SIGNAL_RECIPIENT}"
 
 exit 0

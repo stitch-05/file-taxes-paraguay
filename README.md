@@ -25,11 +25,11 @@ Update repo and install the packages:
 sudo apt update && sudo apt install jq libxml2-utils
 ````
 
-### 1.3) Install on RedHad distros
+### 1.3) Install on RedHat-based distros
 Install the packages:
 
 ````
-sudo dnf install jq libxml2-utils
+sudo dnf install jq libxml2
 ````
 
 ## 2) Basic Setup
