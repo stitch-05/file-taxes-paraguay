@@ -17,7 +17,7 @@ random_sleep
 TAXPAYER=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_TAXPAYER")
 
 if ! echo $TAXPAYER | grep -q "Presentar Declaración"; then
-  echo "Error: Tax payer not found"
+  send_message "Error" "Tax payer not found"
   exit 1
 fi
 
@@ -34,7 +34,7 @@ PERMIT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent
 IS_PERMITED=$(echo $PERMIT | jq --raw-output '.permite')
 
 if [[ "$IS_PERMITED" = "false" ]]; then
-  echo "Error: Tax form could not be retreived"
+  send_message "Error" "Tax form could not be retreived"
   exit 1
 fi
 
@@ -109,16 +109,12 @@ STATUS=$(echo $FINAL | jq --raw-output '.exito' 2>/dev/null)
 
 if [[ "$STATUS" = "false" ]]; then
   ERROR=$(echo $FINAL | jq --raw-output '.operacion.errores[0].descripcion' 2>/dev/null)
-  echo "Error: $ERROR"
 
   send_message "Error" "$ERROR"
-
   exit 1
 else
-  MESSAGE="Paraguay VAT filed successfully!"
+  MESSAGE="VAT filed successfully!"
 
-  echo "Success: $MESSAGE"
   send_message "Success!" $MESSAGE
-
   exit 0
 fi

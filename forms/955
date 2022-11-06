@@ -18,7 +18,7 @@ random_sleep
 RECEIPT_MANAGEMENT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_RECEIPT_MANAGEMENT")
 
 if ! echo $RECEIPT_MANAGEMENT | grep -q "Gestión de Comprobantes"; then
-  echo "Error: Not able to manage receipts"
+  send_message "Error" "Not able to manage receipts"
   exit 1
 fi
 
@@ -34,7 +34,7 @@ OPERATIONS=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-a
 CONFIRM_URL=$(echo $OPERATIONS | jq --raw-output '.[] | select(.id == "'$RECEIPT_MANAGEMENT_ID'") | .url')
 
 if [[ "$CONFIRM_URL" = "" ]]; then
-  echo "Error: No access to receipt forms"
+  send_message "Error" "No access to receipt forms"
   exit 1
 fi
 
@@ -45,7 +45,7 @@ random_sleep
 RECEIPT_FORMS=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_BASE/$CONFIRM_URL")
 
 if ! echo $RECEIPT_FORMS | grep -q "Registro de Comprobantes - Presentación de Talón Resumen"; then
-  echo "Error: No receipt forms available"
+  send_message "Error" "No receipt forms available"
   exit 1
 fi
 
@@ -55,26 +55,20 @@ TOKEN_TALON=$(urlencode $TOKEN_TALON)
 
 # Submit the form
 echo "Sending tax form $FORM..."
+
 random_sleep
-
-echo "wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent=\"$UA\" \"$URL_BASE/$METHOD_TALON?t3=$TOKEN_TALON\""
-
 PROCESS_RECEIPTS=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent="$UA" "$URL_BASE/$METHOD_TALON?t3=$TOKEN_TALON")
 
 STATUS=$(echo $PROCESS_RECEIPTS | jq --raw-output '.exito' 2>/dev/null)
 
 if [[ "$STATUS" = "" ]]; then
-  ERROR="Error: Filing receipt form $FORM"
+  ERROR="Filing receipt form $FORM"
 
-  echo $ERROR
   send_message "Error" "$ERROR"
-
   exit 1
 else
-  MESSAGE="Paraguay receipts for period $PERIOD filed successfully!"
+  MESSAGE="Receipts for period $PERIOD filed successfully!"
 
-  echo "Success: $MESSAGE"
   send_message "Success!" $MESSAGE
-
   exit 0
 fi
