@@ -69,6 +69,6 @@ if [[ "$STATUS" = "" ]]; then
 else
   MESSAGE="Receipts for period $PERIOD filed successfully!"
 
-  send_message "Success!" $MESSAGE
+  send_message "Success!" "$MESSAGE"
   return 0
 fi
