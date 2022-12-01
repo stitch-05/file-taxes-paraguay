@@ -19,7 +19,7 @@ RECEIPT_MANAGEMENT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE 
 
 if ! echo $RECEIPT_MANAGEMENT | grep -q "Gestión de Comprobantes"; then
   send_message "Error" "Not able to manage receipts"
-  exit 1
+  return 1
 fi
 
 # Get url of receipt forms
@@ -35,7 +35,7 @@ CONFIRM_URL=$(echo $OPERATIONS | jq --raw-output '.[] | select(.id == "'$RECEIPT
 
 if [[ "$CONFIRM_URL" = "" ]]; then
   send_message "Error" "No access to receipt forms"
-  exit 1
+  return 1
 fi
 
 # Load receipt forms and get the page url
@@ -46,7 +46,7 @@ RECEIPT_FORMS=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --use
 
 if ! echo $RECEIPT_FORMS | grep -q "Registro de Comprobantes - Presentación de Talón Resumen"; then
   send_message "Error" "No receipt forms available"
-  exit 1
+  return 1
 fi
 
 PERIOD=$(period)
@@ -65,10 +65,10 @@ if [[ "$STATUS" = "" ]]; then
   ERROR="Filing receipt form $FORM"
 
   send_message "Error" "$ERROR"
-  exit 1
+  return 1
 else
   MESSAGE="Receipts for period $PERIOD filed successfully!"
 
   send_message "Success!" $MESSAGE
-  exit 0
+  return 0
 fi

@@ -18,7 +18,7 @@ TAXPAYER=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-age
 
 if ! echo $TAXPAYER | grep -q "Presentar Declaración"; then
   send_message "Error" "Tax payer not found"
-  exit 1
+  return 1
 fi
 
 # Create tax form and get its url
@@ -35,7 +35,7 @@ IS_PERMITED=$(echo $PERMIT | jq --raw-output '.permite')
 
 if [[ "$IS_PERMITED" = "false" ]]; then
   send_message "Error" "Tax form could not be retreived"
-  exit 1
+  return 1
 fi
 
 # Load tax form
@@ -111,10 +111,10 @@ if [[ "$STATUS" = "false" ]]; then
   ERROR=$(echo $FINAL | jq --raw-output '.operacion.errores[0].descripcion' 2>/dev/null)
 
   send_message "Error" "$ERROR"
-  exit 1
+  return 1
 else
   MESSAGE="VAT filed successfully!"
 
   send_message "Success!" $MESSAGE
-  exit 0
+  return 0
 fi

@@ -26,7 +26,7 @@ urlencode() {
 send_message() {
   if [[ -z "$2" ]]; then
     echo "Notification error: No message defined"
-    exit
+    return 1
   fi
 
   echo "MSG:" "$1" "$2"
@@ -41,7 +41,7 @@ send_message() {
     ;;
   *)
     echo "No notification service configured"
-    exit 1
+    return 1
   esac
 }
 

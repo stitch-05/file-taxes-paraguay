@@ -136,6 +136,8 @@ if [[ ! "$PENDING_ACTIONS" = "" ]]; then
 
     TAX=$(_jq '.impuesto')
 
+    echo "================"
+    echo "Tax form no. $TAX needs to be filed"
     [ -f$WORKING_DIR/forms/$TAX ] && . $WORKING_DIR/forms/$TAX
   done
 else
