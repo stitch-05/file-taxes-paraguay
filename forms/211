@@ -115,6 +115,6 @@ if [[ "$STATUS" = "false" ]]; then
 else
   MESSAGE="VAT filed successfully!"
 
-  send_message "Success!" $MESSAGE
+  send_message "Success!" "$MESSAGE"
   return 0
 fi
