@@ -91,6 +91,9 @@ else
   if echo $LOGIN | grep -q "Usuario o Contraseña incorrectos"; then
     send_message "Error" "Incorrect login credentials"
     exit 1
+  elif echo $LOGIN | grep -q "Código de Seguridad no es correcto"; then
+    send_message "Error" "Login on the website and fill out a captcha first https://marangatu.set.gov.py/eset/login?login_error=2&usuario=$USERNAME"
+    exit 1
   else
     echo "Logged in"
   fi
