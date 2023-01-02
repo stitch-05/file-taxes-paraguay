@@ -84,6 +84,30 @@ NOTIFICATION_SERVICE="signal"
 SIGNAL_NUMBER=<your signal phone number>
 ````
 
+## Common issues
+If you run into any issues with the script, please make the script more verbose by changing `WGET_OUTPUT` in `.env` to the following and running the script again:
+
+````
+WGET_OUTPUT="-O-"
+````
+
+The 2 most common issues are SSL issues related to the old server certificate and login captcha.
+
+### SSL
+If `wget` outputs an SSL error, you have several options of **trying** to fix it none of which can be covered in detail as they vary based on the OS version.
+
+Your best bet is uncommenting the following line in `.env` and running the script again:
+````
+WGET_FLAGS="--secure-protocol tlsv1"
+````
+
+If it doesn't help, you will have to play with the flag (google is your friend).
+
+Other option is to lower your SSL security sesttings in `/etc/ssl/openssl.cnf` which is NOT RECOMMENDED! Again, it depends on the version of your OS and openssl library.
+
+### Captcha
+You may be required to solve captcha. The script is currently unable of doing so but you can get around this issue by solving it in the browser first and running the script again. You will see a captcha related error in the console with the link to where you can solve it first.
+
 ## Support me
 I spent a lot of time figuring out Paraguay's tax portal (kudos to Paraguay gov for making it fairly hard to automatize) and making it work. 
 
