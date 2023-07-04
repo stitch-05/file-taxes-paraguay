@@ -108,6 +108,9 @@ Other option is to lower your SSL security sesttings in `/etc/ssl/openssl.cnf` w
 ### Captcha
 You may be required to solve captcha. The script is currently unable of doing so but you can get around this issue by solving it in the browser first and running the script again. You will see a captcha related error in the console with the link to where you can solve it first.
 
+### No pending actions
+If you see a "no pending actions" message then it most likely means there's no form to fill out. Keep the script running in a cron and it will fill out known tax forms as soon as they are available.
+
 ## Support me
 I spent a lot of time figuring out Paraguay's tax portal (kudos to Paraguay gov for making it fairly hard to automatize) and making it work. 
 
