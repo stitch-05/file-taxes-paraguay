@@ -55,7 +55,7 @@ random_sleep() {
 }
 
 pad_to_two() {
-  printf "%0*d\n" 2 $1
+  printf "%0*d\n" 2 $((10#$1))
 }
 
 period() {
@@ -63,7 +63,7 @@ period() {
   MONTH=$(date +%m)
 
   [ $MONTH -eq "01" ] && ((YEAR--)) || YEAR=$YEAR
-  [ $MONTH -eq "01" ] && MONTH=12 || ((MONTH--))
+  [ $MONTH -eq "01" ] && MONTH=12 || MONTH=$(( 10#$MONTH - 1 ))
   MONTH=$(pad_to_two $MONTH)
 
   echo "$YEAR$MONTH"
