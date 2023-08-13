@@ -118,7 +118,11 @@ I spent a lot of time figuring out Paraguay's tax portal (kudos to Paraguay gov 
 
 If you find this script helpful, your Bitcoin, Monero or Litecoin donation is very much appreciated:
 
-#### Bitcoin Address
+#### Donate Bitcoin
+[![Pay with BTCPay](https://lnnet.work/img/paybutton/pay.svg)](https://lnnet.work/apps/4zmBpQ2yuD2pxMoyBTHjtnJUvG9/pos)
+
+or
+
 ````
 bc1qxwuj3rty9krmtaf6tvah6cktkaktfgx0jagtva
 ````
@@ -126,7 +130,7 @@ bc1qxwuj3rty9krmtaf6tvah6cktkaktfgx0jagtva
 ![qr-btc](https://user-images.githubusercontent.com/104267488/199220610-878b531d-5387-4fa3-b99c-702d83dbe717.png)
 
 
-#### Monero Address
+#### Donate Monero 
 ````
 87D74aNPpJs6cfJJStv9yj7LYaAW4oJcQX1YqzpvaGokYd2dhMeYzhPNHBrBUdzKrvW9LyFkL2xVBTrhT9rpNocAAH1Z2Qt
 ````
@@ -134,7 +138,7 @@ bc1qxwuj3rty9krmtaf6tvah6cktkaktfgx0jagtva
 ![qr-xmr](https://user-images.githubusercontent.com/104267488/199220635-ae90a9cd-e4d4-4e34-b6ec-502c6f3b0517.png)
 
 
-#### Litecoin Address
+#### Donate Litecoin
 ````
 ltc1qf0lferevscf4ag8vqck5n0nuvnnwdm0g6l9yfk
 ````
