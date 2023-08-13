@@ -5,6 +5,8 @@ As a Paraguay tax resident (having a Tax ID) you have to file VATs (form 211) on
 
 Feel free to [support me](#support-me) if you find this helfpul. Thank you!
 
+[<img src="https://i.imgur.com/kI1J5wP.png" alt="drawing" height="60"/>](#support-me)
+
 ## 1) Dependencies (choose one)
 You need these two packages to parse json and html: `jq`, `xmllint`
 
@@ -114,7 +116,7 @@ If you see a "no pending actions" message then it most likely means there's no f
 ## Support me
 I spent a lot of time figuring out Paraguay's tax portal (kudos to Paraguay gov for making it fairly hard to automatize) and making it work. 
 
-If you find this script helpful, your Bitcoin or Monero donation is very much appreciated:
+If you find this script helpful, your Bitcoin, Monero or Litecoin donation is very much appreciated:
 
 #### Bitcoin Address
 ````
@@ -130,6 +132,14 @@ bc1qxwuj3rty9krmtaf6tvah6cktkaktfgx0jagtva
 ````
 
 ![qr-xmr](https://user-images.githubusercontent.com/104267488/199220635-ae90a9cd-e4d4-4e34-b6ec-502c6f3b0517.png)
+
+
+#### Litecoin Address
+````
+ltc1qf0lferevscf4ag8vqck5n0nuvnnwdm0g6l9yfk
+````
+
+![qr-ltc](https://user-images.githubusercontent.com/104267488/260294867-a60652f2-2209-4e57-862b-33fb5b2d90c2.png)
 
 
 # Thank you!
