@@ -119,7 +119,7 @@ I spent a lot of time figuring out Paraguay's tax portal (kudos to Paraguay gov 
 If you find this script helpful, your Bitcoin, Monero or Litecoin donation is very much appreciated:
 
 #### Donate Bitcoin
-[![Pay with BTCPay](https://lnnet.work/img/paybutton/pay.svg)](https://lnnet.work/apps/ExJdUFwKUr5gCuEiyzTb19u582b/pos)
+[![Pay with BTCPay](https://lnnet.work/img/paybutton/pay.svg)](https://lnnet.work/apps/2rmW6V8D4ZQjAx5G75wqTAJkE82H/pos)
 
 or
 
