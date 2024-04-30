@@ -49,7 +49,7 @@ if ! echo $RECEIPT_FORMS | grep -q "Registro de Comprobantes - Presentación de 
   return 1
 fi
 
-PERIOD=$(period)
+PERIOD=$1
 TOKEN_TALON=$(encrypt '{"periodo":'$PERIOD',"formulario":'$FORM'}')
 TOKEN_TALON=$(urlencode $TOKEN_TALON)
 

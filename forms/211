@@ -24,7 +24,7 @@ fi
 # Create tax form and get its url
 echo "Retrieving tax form..."
 
-PERIOD=$(period)
+PERIOD=$1
 TOKEN_PERMIT=$(encrypt '{"ruc":"'$CEDULA'","dv":"'$DV'","periodo":"'$PERIOD'","impuesto":"'$TAX'","formulario":"'$FORM'","fechaDiferida":null}')
 TOKEN_PERMIT=$(urlencode $TOKEN_PERMIT)
 

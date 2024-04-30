@@ -138,10 +138,16 @@ if [[ ! "$PENDING_ACTIONS" = "" ]]; then
     }
 
     TAX=$(_jq '.impuesto')
+    REQUESTED_PERIOD=$(_jq '.periodo')
+    CURRENT_PERIOD=$(period)
 
     echo "================"
     echo "Tax form no. $TAX needs to be filed"
-    [ -f$WORKING_DIR/forms/$TAX ] && . $WORKING_DIR/forms/$TAX
+    if [[ "$REQUESTED_PERIOD" = "$CURRENT_PERIOD" ]]; then
+      [ -f$WORKING_DIR/forms/$TAX ] && . $WORKING_DIR/forms/$TAX $REQUESTED_PERIOD
+    else
+      echo "Please wait for the next fiscal period (e.g. next month) to begin."
+    fi 
   done
 else
   echo "No pending actions"
