@@ -150,7 +150,7 @@ if [[ ! "$PENDING_ACTIONS" = "" ]]; then
         echo "Please wait for the next fiscal period (e.g. next month) to begin."
       fi
     else
-      ERROR="Tax form no. $TAX requested but not implemented yet"
+      ERROR="Tax form no. $TAX requested but not yet implemented."
 
       send_message "Error" "$ERROR"
     fi
