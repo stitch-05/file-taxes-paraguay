@@ -143,11 +143,17 @@ if [[ ! "$PENDING_ACTIONS" = "" ]]; then
 
     echo "================"
     echo "Tax form no. $TAX needs to be filed"
-    if [[ "$REQUESTED_PERIOD" = "$CURRENT_PERIOD" ]]; then
-      [ -f$WORKING_DIR/forms/$TAX ] && . $WORKING_DIR/forms/$TAX $REQUESTED_PERIOD
+    if [ -f $WORKING_DIR/forms/$TAX ]; then
+      if [[ "$REQUESTED_PERIOD" = "$CURRENT_PERIOD" ]]; then
+        [ -f $WORKING_DIR/forms/$TAX ] && . $WORKING_DIR/forms/$TAX $REQUESTED_PERIOD
+      else
+        echo "Please wait for the next fiscal period (e.g. next month) to begin."
+      fi
     else
-      echo "Please wait for the next fiscal period (e.g. next month) to begin."
-    fi 
+      ERROR="Tax form no. $TAX requested but not implemented yet"
+
+      send_message "Error" "$ERROR"
+    fi
   done
 else
   echo "No pending actions"
