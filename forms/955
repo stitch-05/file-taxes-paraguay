@@ -44,7 +44,7 @@ echo "Retrieving receipt forms..."
 random_sleep
 RECEIPT_FORMS=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_BASE/$CONFIRM_URL")
 
-if ! echo $RECEIPT_FORMS | grep -q "Registro de Comprobantes - Presentación de Talón Resumen"; then
+if ! echo $RECEIPT_FORMS | grep -q "Registro de Comprobantes - Presentación de Talón"; then
   send_message "Error" "No receipt forms available"
   return 1
 fi
