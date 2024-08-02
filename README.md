@@ -3,6 +3,8 @@ As a Paraguay tax resident (having a Tax ID) you have to file VATs (form 211) on
 
 > :warning: ** Don't use the script if your VAT is not 0!
 
+The script also automatically updates your profile information which is usually requested once a year (in August). 
+
 Feel free to [support me](#support-me) if you find this helfpul. Thank you!
 
 [<img src="https://i.imgur.com/kI1J5wP.png" alt="drawing" height="60"/>](#support-me)
