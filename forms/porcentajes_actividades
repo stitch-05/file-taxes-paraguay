@@ -1,0 +1,76 @@
+#!/bin/bash
+
+METHOD_VERIFICATION="actualizacion/verificar"
+METHOD_RECOVER="actualizacion/recuperar"
+METHOD_SAVE="actualizacion/guardar?"
+METHOD_ACCEPT_DOCUMENT="ru/documento/archivos/aceptarDocumento"
+
+LINK=$1
+
+echo "Retrieving taxpayer data..."
+random_sleep
+TAXPAYER_UPDATE=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_HOST$LINK")
+
+if ! echo $TAXPAYER_UPDATE | grep -q "Porcentajes de Ingreso por Actividades Económicas"; then
+  send_message "Error" "No profile available"
+  return 1
+fi
+
+TOKEN_RECOVER=$(encrypt '{"ruc":"'$CEDULA'","categoria":"PORCENTAJES_ACTIVIDAD"}')
+TOKEN_RECOVER=$(urlencode $TOKEN_RECOVER)
+
+echo "Retrieving form data..."
+random_sleep
+RECOVER=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_RECOVER?t3=$TOKEN_RECOVER")
+
+GENERAL=$(echo $RECOVER | jq -r '.generales')
+INITIAL_DATE=$(echo $GENERAL | jq --raw-output '.operacionesFechaInicio')
+NAME=$(echo $GENERAL | jq --raw-output '.nombreCompleto')
+GENERAL_NAME=$(echo $GENERAL | jq --raw-output '.generalesNombreCompleto')
+PERCENTAGE=$(echo $GENERAL | jq --raw-output '.edicionPorcentajes')
+YEAR=$(date +%Y)
+CURRENT_DATE=$(date +"%d/%m/$YEAR")
+MONTHS=$(echo $GENERAL | jq --raw-output '.operacionesMesCierreHistorico')
+
+DATA='{"ruc":"'$CEDULA'","categoria":"PORCENTAJES_ACTIVIDAD","captura":{"formaJuridica":"FISICO","ruc":"'$CEDULA'","categoria":"PORCENTAJES_ACTIVIDAD","generalesFechaSolicitud":"'$CURRENT_DATE'","generalesTipoInscripcion":"SOLICITADA","operacionesFechaInicio":"'$INITIAL_DATE'","operacionesMesCierreHistorico":'$MONTHS',"nombreCompleto":"'$NAME'","generalesNombreCompleto":"'$GENERAL_NAME'","edicionPorcentajes":"'$PERCENTAGE'","generalesPorcentajesActividadesAnho":"'$YEAR'","generalesPorcentajesActividadesAnho_":"'$YEAR'","domicilioTelefono01":"","domicilioTelefono02":"","domicilioCelular01":"","domicilioCelular02":"","porcentajeActividadNombre.1":"96099 - OTRAS ACTIVIDADES DE SERVICIOS PERSONALES N.C.P.","porcentajeActividad.1":"C4_96099","porcentajeActividadValor.1":100}}'
+
+echo "Saving percentage data..."
+random_sleep
+SAVE=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent="$UA" --post-data="$DATA" "$URL_BASE/$METHOD_SAVE")
+
+STATUS=$(echo $SAVE | jq --raw-output '.exito' 2>/dev/null)
+
+if [[ "$STATUS" = "false" ]]; then
+  ERROR=$(echo $SAVE | jq --raw-output '.operacion.errores[0].descripcion' 2>/dev/null)
+
+  send_message "Error" "$ERROR"
+  return 1
+fi
+
+echo "Redirecting to document..."
+REDIRECT_URL=$(echo $SAVE | jq --raw-output '.url')
+REDIRECT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_BASE/$REDIRECT_URL")
+
+if ! echo $REDIRECT | grep -q "Enviar Solicitud"; then
+  send_message "Error" "Can't update percentages"
+  return 1
+fi
+
+ARCHIVE_CONTROLLER=$(xmllint --html --xpath "string(//div[@data-ng-controller='DocumentoArchivosController as vm']/@data-ng-init)" 2>/dev/null - <<< "$REDIRECT")
+
+DOCUMENT_STRING=$(echo "$ARCHIVE_CONTROLLER" | cut -d "'" -f2)
+DOCUMENT_STRING=${DOCUMENT_STRING%,*}
+DATA='{"id":"'$DOCUMENT_STRING'"}'
+
+echo "Confirming document..."
+random_sleep
+ACCEPT_DOCUMENT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent="$UA" --post-data="$DATA" "$URL_BASE/$METHOD_ACCEPT_DOCUMENT")
+
+REDIRECT_URL=$(echo $ACCEPT_DOCUMENT | jq --raw-output '.url')
+REDIRECT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_BASE/$REDIRECT_URL")
+
+# There isn't any info based on which I can confirm it has sent correctly
+MESSAGE="Info on the percentage of income from economic activity updated successfuly!"
+
+send_message "Success!" "$MESSAGE"
+return 0

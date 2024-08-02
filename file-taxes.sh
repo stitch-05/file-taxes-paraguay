@@ -116,6 +116,39 @@ else
   exit 1
 fi
 
+# Check profile info
+echo "Checking profile info changes..."
+
+random_sleep
+CHECK_PROFILE=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_CHECK_PROFILE?t3=$TOKEN")
+
+MUST_UPDATE=$(echo "${CHECK_PROFILE}" | jq --raw-output '.debeActualizar' 2>/dev/null)
+
+if [[ "$MUST_UPDATE" == "true" ]]; then
+  for row in $(echo "${CHECK_PROFILE}" | jq -r '.vinculos[] | @base64'); do
+    _jq() {
+      echo ${row} | base64 --decode | jq -r ${1}
+    }
+
+    NAME=$(_jq '.texto')
+    NAME_SAFE=$(echo "$NAME" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')
+    LINK=$(_jq '.url')
+
+    echo "================"
+    echo "Profile data $NAME must be updated"
+
+    if [ -f $WORKING_DIR/forms/$NAME_SAFE ]; then
+      . $WORKING_DIR/forms/$NAME_SAFE $LINK
+    else
+      ERROR="Profile data $NAME requested but not yet implemented. Please update it manually."
+
+      send_message "Error" "$ERROR"
+    fi
+  done
+else
+  echo "No pending profile actions"
+fi
+
 # See if there's any pending forms
 echo "Checking pending forms..."
 
