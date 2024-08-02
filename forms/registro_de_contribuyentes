@@ -1,0 +1,136 @@
+#!/bin/bash
+
+METHOD_VERIFICATION="actualizacion/verificar"
+METHOD_RECOVER="actualizacion/recuperar"
+METHOD_CHECK_STEP="actualizacion/verificarPaso"
+METHOD_SAVE="actualizacion/guardar?"
+METHOD_ACCEPT_DOCUMENT="ru/documento/archivos/aceptarDocumento"
+
+LINK=$1
+
+echo "Retrieving taxpayer data..."
+random_sleep
+TAXPAYER_UPDATE=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_HOST$LINK")
+
+# echo $TAXPAYER_UPDATE
+
+if ! echo $TAXPAYER_UPDATE | grep -q "Actualización de Contribuyente"; then
+  send_message "Error" "No profile available"
+  return 1
+fi
+
+TOKEN_RECOVER=$(encrypt '{"ruc":"'$CEDULA'","categoria":"EDICION"}')
+TOKEN_RECOVER=$(urlencode $TOKEN_RECOVER)
+
+echo "Retrieving form data..."
+random_sleep
+RECOVER=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_RECOVER?t3=$TOKEN_RECOVER")
+
+GENERAL=$(echo $RECOVER | jq -r '.generales')
+DOCUMENT_TYPE=$(echo $GENERAL | jq --raw-output '.generalesTipoDocumento')
+INITIAL_DATE=$(echo $GENERAL | jq --raw-output '.operacionesFechaInicio')
+NAME=$(echo $GENERAL | jq --raw-output '.nombreCompleto')
+GENERAL_NAME=$(echo $GENERAL | jq --raw-output '.generalesNombres')
+SURNAME=$(echo $GENERAL | jq --raw-output '.generalesApellido01')
+FULL_NAME=$(echo $GENERAL | jq --raw-output '.generalesNombreCompleto')
+BIRTHDATE=$(echo $GENERAL | jq --raw-output '.generalesFechaNacimiento')
+EMAIL=$(echo $GENERAL | jq --raw-output '.generalesCorreo01')
+OFFICIALS=$(echo $GENERAL | jq --raw-output '.operacionesFuncionarios')
+CITY=$(echo $GENERAL | jq --raw-output '.generalesRegionalTexto')
+CITIZEN_UPDATED=$(echo $GENERAL | jq --raw-output '.generalesCiudadanoActualizado')
+IMPORTER_OPS=$(echo $GENERAL | jq --raw-output '.operacionesImportador')
+EXPORTER_OPS=$(echo $GENERAL | jq --raw-output '.operacionesExportador')
+LEY285=$(echo $GENERAL | jq --raw-output '.ley285')
+STATE=$(echo $GENERAL | jq --raw-output '.generalesEstado')
+DECLARES_INTERNET=$(echo $GENERAL | jq --raw-output '.declaraInternet')
+REGIONAL=$(echo $GENERAL | jq --raw-output '.generalesRegional')
+MONTHS=$(echo $GENERAL | jq --raw-output '.operacionesMesCierreHistorico')
+
+DOMICIL=$(echo $RECOVER | jq -r '.domicilio')
+DISTRICT=$(echo $DOMICIL | jq --raw-output '.domicilioLocalidad')
+DISTRICT_NAME=$(echo $DOMICIL | jq --raw-output '.domicilioDistrito_')
+DEPARTMENT=$(echo $DOMICIL | jq --raw-output '.domicilioDepartamento_')
+NEIGHBORHOOD=$(echo $DOMICIL | jq --raw-output '.domicilioBarrio')
+NEIGHBORHOOD_NAME=$(echo $DOMICIL | jq --raw-output '.domicilioBarrio_')
+LIVING_TYPE=$(echo $DOMICIL | jq --raw-output '.domicilioTipoVia')
+LATITUDE=$(echo $DOMICIL | jq --raw-output '.domicilioLatitud')
+LONGITUDE=$(echo $DOMICIL | jq --raw-output '.domicilioLongitud')
+MOBILE_SUFFIX=$(echo $DOMICIL | jq --raw-output '.domicilioCelular01Sufijo')
+MOBILE_PREFIX=$(echo $DOMICIL | jq --raw-output '.domicilioCelular01Prefijo')
+DOOR_NUMBER=$(echo $DOMICIL | jq --raw-output '.domicilioNumeroPuerta')
+BUILDING_TYPE=$(echo $DOMICIL | jq --raw-output '.domicilioTipoInmueble')
+REFERENCES=$(echo $DOMICIL | jq --raw-output '.domicilioReferencias')
+STREET_NAME=$(echo $DOMICIL | jq --raw-output '.domicilioNombreVia')
+
+YEAR=$(date +%Y)
+CURRENT_DATE=$(date +"%d/%m/$YEAR")
+
+SUB_DATA='"formaJuridica":"FISICO","ruc":"'$CEDULA'","categoria":"EDICION","generalesFormaJuridica":"FISICO","generalesFechaSolicitud":"'$CURRENT_DATE'","generalesTipoInscripcion":"SOLICITADA","categoriaContribuyente":"PEQUENO","generalesTipoDocumento":"'$DOCUMENT_TYPE'","operacionesMesCierreVigente":'$MONTHS',"nombreCompleto":"'$NAME'","generalesPaisDocumento":"PY","operacionesMesCierre":'$MONTHS',"ley285":"'$LEY285'","generalesPaisDocumento_":"Paraguay","generalesDv":"'$DV'","generalesNumeroDocumento":"'$CEDULA'","declaraInternet":"'$DECLARES_INTERNET'","operacionesImportador":"'$IMPORTER_OPS'","generalesNombres":"'$GENERAL_NAME'","generalesCorreo01":"'$EMAIL'","operacionesFechaInicio":"'$INITIAL_DATE'","operacionesExportador":"'$EXPORTER_OPS'","tipoInscripcion":"SOLICITADA","generalesApellido01":"'$SURNAME'","operacionesFuncionarios":'$OFFICIALS',"generalesEstado":"'$STATE'","generalesRuc":"'$CEDULA'","generalesRegionalTexto":"'$CITY'","fechaInicioActividad":"'$INITIAL_DATE'","generalesRegional":'$REGIONAL',"generalesTipoDocumento_":"'$DOCUMENT_TYPE'","operacionesMesCierre_":"DICIEMBRE","generalesCiudadanoActualizado":"'$CITIZEN_UPDATED'","operacionesMesCierreHistorico":'$MONTHS',"generalesNombreCompleto":"'$FULL_NAME'","generalesFechaNacimiento":"'$BIRTHDATE'","domicilioTipoVia":"'$LIVING_TYPE'","domicilioCelular01Sufijo":"'$MOBILE_SUFFIX'","domicilioReferencias":"'$REFERENCES'","domicilioCelular01Prefijo":"'$MOBILE_PREFIX'","domicilioCelular01":"('$MOBILE_PREFIX')'$MOBILE_SUFFIX'","domicilioDistrito_":"'$DISTRICT_NAME'","domicilioLatitud":"'$LATITUDE'","domicilioDepartamento_":"'$DEPARTMENT'","domicilioBarrio_":"'$NEIGHBORHOOD_NAME'","domicilioTipoVia_":"'$LIVING_TYPE'","domicilioNombreVia":"'$STREET_NAME'","domicilioTipoInmueble":"'$BUILDING_TYPE'","domicilioNumeroPuerta":"'$DOOR_NUMBER'","domicilioTipoInmueble_":"'$BUILDING_TYPE'","domicilioLongitud":"'$LONGITUDE'","domicilioLocalidad":'$DISTRICT',"domicilioLocalidad_":"'$DISTRICT_NAME'","domicilioDepartamento":1,"domicilioBarrio":'$NEIGHBORHOOD',"domicilioDistrito":'$DISTRICT
+
+DATA='{"ruc":"'$CEDULA'","categoria":"EDICION","paso":"generales","captura":{'$SUB_DATA'}}'
+
+echo "Checking step..."
+random_sleep
+CHECK_STEP=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent="$UA" --post-data="$DATA" "$URL_BASE/$METHOD_CHECK_STEP")
+
+if [[ "$CHECK_STEP" != "[]" ]]; then
+  send_message "Error" "$CHECK_STEP"
+  return 1
+fi
+
+DATA='{"ruc":"'$CEDULA'","categoria":"EDICION","captura":{'$SUB_DATA',"domicilioTelefono02Prefijo":"","domicilioCelular02Prefijo":"","domicilioCelular02":"","domicilioTelefono02":"","domicilioCelular02Sufijo":"","domicilioTelefono02Sufijo":"","domicilioFechaModificacion":"'$CURRENT_DATE'","edicionDomicilio":"S","domicilioLat":'$LATITUDE',"domicilioLng":'$LONGITUDE'}}'
+
+if [[ "$CHECK_STEP" != "[]" ]]; then
+  send_message "Error" "$CHECK_STEP"
+  return 1
+fi
+
+echo "Verifying data..."
+random_sleep
+CHECK_STEP=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent="$UA" --post-data="$DATA" "$URL_BASE/$METHOD_VERIFICATION")
+
+if [[ "$CHECK_STEP" != "[]" ]]; then
+  send_message "Error" "$CHECK_STEP"
+  return 1
+fi
+
+echo "Saving tax payer data..."
+random_sleep
+SAVE=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent="$UA" --post-data="$DATA" "$URL_BASE/$METHOD_SAVE")
+
+STATUS=$(echo $SAVE | jq --raw-output '.exito' 2>/dev/null)
+
+if [[ "$STATUS" = "false" ]]; then
+  ERROR=$(echo $SAVE | jq --raw-output '.operacion.errores[0].descripcion' 2>/dev/null)
+
+  send_message "Error" "$ERROR"
+  return 1
+fi
+
+echo "Redirecting to document..."
+REDIRECT_URL=$(echo $SAVE | jq --raw-output '.url')
+REDIRECT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_BASE/$REDIRECT_URL")
+
+if ! echo $REDIRECT | grep -q "Enviar Solicitud"; then
+  send_message "Error" "Can't update percentages"
+  return 1
+fi
+
+ARCHIVE_CONTROLLER=$(xmllint --html --xpath "string(//div[@data-ng-controller='DocumentoArchivosController as vm']/@data-ng-init)" 2>/dev/null - <<< "$REDIRECT")
+
+DOCUMENT_STRING=$(echo "$ARCHIVE_CONTROLLER" | cut -d "'" -f2)
+DOCUMENT_STRING=${DOCUMENT_STRING%,*}
+DATA='{"id":"'$DOCUMENT_STRING'"}'
+
+echo "Confirming document..."
+random_sleep
+ACCEPT_DOCUMENT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent="$UA" --post-data="$DATA" "$URL_BASE/$METHOD_ACCEPT_DOCUMENT")
+
+REDIRECT_URL=$(echo $ACCEPT_DOCUMENT | jq --raw-output '.url')
+REDIRECT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_BASE/$REDIRECT_URL")
+
+# There isn't any info based on which I can confirm it has sent correctly
+MESSAGE="Tax payer info updated successfuly!"
+
+send_message "Success!" "$MESSAGE"
+return 0
