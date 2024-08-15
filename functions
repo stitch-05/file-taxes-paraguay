@@ -39,6 +39,11 @@ send_message() {
     signal)
       $WORKING_DIR/services/signal.sh "${MESSAGE_PREFIX}$1"$'\n'"$2"
     ;;
+
+    email)
+      #                                        <subject>       <msg>
+      $WORKING_DIR/services/post_man.py "${MESSAGE_PREFIX} $1" "$2"
+    ;;
   *)
     echo "No notification service configured"
     return 1

@@ -88,6 +88,18 @@ NOTIFICATION_SERVICE="signal"
 SIGNAL_NUMBER=<your signal phone number>
 ````
 
+### 5.2) Email
+Use SMTP to receive email notifications. Requires python3 installed. Add the following to `.env` or `.env.local`.
+Below example uses SMT submission feature from proton mail.
+````
+export SMTP_HOST="smtp.protonmail.ch"
+export SMTP_PORT="587"
+export SMTP_ADDR="mypytax@pm.me"
+export SMTP_PWD="g1df65gdf51g1gf65dg1df5g16d5fg1d2615dgfg"
+# actual receiver/s of email notifications (';' seprated string)
+export SMTP_RECV="email0@pm.me;email1@gmail.com"
+````
+
 ## Common issues
 If you run into any issues with the script, please make the script more verbose by changing `WGET_OUTPUT` in `.env` to the following and running the script again:
 
