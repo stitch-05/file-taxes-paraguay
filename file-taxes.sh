@@ -31,11 +31,41 @@ command -v jq >/dev/null 2>&1 || {
       echo "To install on MacOS, run:"
       echo "brew install jq"
     ;;
+    FreeBSD*)
+      echo "To install on FreeBSD, run:"
+      echo "pkg install jq"
+    ;;
     *)          
       echo "Install jq manually using your system's package manager or source code."
   esac
 
   exit 1; 
+}
+
+# Make sure to install base64
+PROG_BASE64="base64"
+command -v ${PROG_BASE64} >/dev/null 2>&1 || {
+  echo >&2 "'${PROG_BASE64}' is required but not installed. Aborting.";
+
+  OS="$(uname -s)"
+
+  case "${OS}" in
+    Linux*)
+      echo "To install on a Debian based distro, run:"
+      echo "sudo apt update && sudo apt install coreutils"
+      echo ""
+      echo "To install on a RedHat based distro, run:"
+      echo "sudo dnf install coreutils"
+    ;;
+    FreeBSD*)
+      echo "To install on a FreeBSD, run:"
+      echo "pkg install ${PROG_BASE64}"
+    ;;
+    *)
+      echo "Install '${PROG_BASE64}' manually using your system's package manager or source code."
+  esac
+
+  exit 1;
 }
 
 # Make sure to install xmllint
@@ -51,6 +81,10 @@ command -v xmllint >/dev/null 2>&1 || {
       echo ""
       echo "To install on a RedHat based distro, run:"
       echo "sudo dnf install libxml2"
+    ;;
+    FreeBSD*)
+      echo "To install on a FreeBSD, run:"
+      echo "pkg install libxml2"
     ;;
     *)          
       echo "Install xmllint manually using your system's package manager or source code."

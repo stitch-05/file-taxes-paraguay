@@ -36,6 +36,18 @@ Install the packages:
 sudo dnf install jq libxml2
 ````
 
+### 1.4) Install on FreeBSD
+Install the packages:
+
+````
+pkg install bash jq base64 libxml2
+````
+
+Run symlink command if /bin/bash does not exist:
+````
+ln -s /usr/local/bin/bash /bin/bash
+````
+
 ## 2) Basic Setup
 Go to a directory of your choice and clone the repo:
 
