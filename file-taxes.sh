@@ -68,6 +68,35 @@ command -v ${PROG_BASE64} >/dev/null 2>&1 || {
   exit 1;
 }
 
+# telegram section (install curl for telegram)
+if [ -n "$TELEGRAM_CHAT_ID" ] && [ -n "$TELEGRAM_TOKEN" ];
+then
+  PROG_CURL="curl"
+  command -v ${PROG_CURL} >/dev/null 2>&1 || {
+    echo >&2 "'${PROG_CURL}' is required but not installed. Aborting.";
+
+    OS="$(uname -s)"
+
+    case "${OS}" in
+      Linux*)
+        echo "To install on a Debian based distro, run:"
+        echo "sudo apt update && sudo apt install ${PROG_CURL}"
+        echo ""
+        echo "To install on a RedHat based distro, run:"
+        echo "sudo dnf install ${PROG_CURL}"
+      ;;
+      FreeBSD*)
+        echo "To install on a FreeBSD, run:"
+        echo "pkg install ${PROG_CURL}"
+      ;;
+      *)
+        echo "Install '${PROG_CURL}' manually using your system's package manager or source code."
+    esac
+
+    exit 1;
+  }
+fi
+
 # Make sure to install xmllint
 command -v xmllint >/dev/null 2>&1 || { 
   echo >&2 "'xmllint' is required but not installed. Aborting."; 

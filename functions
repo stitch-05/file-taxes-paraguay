@@ -39,6 +39,10 @@ send_message() {
     signal)
       $WORKING_DIR/services/signal.sh "${MESSAGE_PREFIX}$1"$'\n'"$2"
     ;;
+
+    telegram)
+      $WORKING_DIR/services/telegram.sh "${MESSAGE_PREFIX}$1"$'\n'"$2"
+    ;;
   *)
     echo "No notification service configured"
     return 1
