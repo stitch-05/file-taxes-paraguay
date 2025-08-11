@@ -68,6 +68,7 @@ METHOD_AUTH="authenticate"
 METHOD_PROFILE="perfil/publico"
 METHOD_PENDING="perfil/vencimientos"
 METHOD_MENU="perfil/menu"
+METHOD_CHECK_PROFILE="perfil/informacionControlesPerfil"
 
 # Load random user agent
 UA_FILE=$WORKING_DIR/user-agents.txt
