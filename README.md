@@ -15,9 +15,9 @@ You need these two packages to parse json and html: `jq`, `xmllint`
 ### 1.1) Install on Mac
 Install [brew](https://brew.sh/) first if you haven't done so already.
 
-Now install `jq`:
+Now install `jq` and `wget`:
 ````
-brew install jq
+brew install jq wget
 ````
 
 `xmllint` is installed by default on MacOS Ventura (and perhaps older).
