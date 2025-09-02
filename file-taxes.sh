@@ -2,11 +2,12 @@
 
 WORKING_DIR=$(dirname "$0")
 
-# Load variables
-[ -f $WORKING_DIR/.env ] && . $WORKING_DIR/.env
-[ -f $WORKING_DIR/.env.local ] && . $WORKING_DIR/.env.local
+ENV_FILE=$WORKING_DIR/.env
+ENV_LOCAL_FILE=$WORKING_DIR/.env.local
 
-. $WORKING_DIR/functions
+# Load variables
+[ -f $ENV_FILE ] && . $ENV_FILE
+[ -f $ENV_LOCAL_FILE ] && . $ENV_LOCAL_FILE
 
 # Handle arguments
 while [[ $# -gt 0 ]]; do
@@ -126,6 +127,9 @@ if [ "$SHOW_HELP" = "1" ]; then
 
   exit 1
 fi
+
+. $WORKING_DIR/migrations
+. $WORKING_DIR/functions
 
 if [[ ! "$USERNAME" || ! "$PASSWORD"  ]]; then
   echo -e "Please set login credentials in .env, .env.local, or as script arguments.\nSee ./$SCRIPT_NAME --help"

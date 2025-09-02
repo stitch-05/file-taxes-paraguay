@@ -1,0 +1,69 @@
+#!/bin/bash
+
+VERSION_FILE=$WORKING_DIR/.version
+[ -f $VERSION_FILE ] && . $VERSION_FILE
+
+ENV_FILE=$WORKING_DIR/.env
+ENV_LOCAL_FILE=$WORKING_DIR/.env.local
+
+VERSIONS=("1.0.0")
+IS_RUNNING=false
+
+version_lt() {
+  [ "$1" != "$2" ] && [[ "$(echo -e "$1\n$2" | sort -V | head -n1)" == "$1" ]]
+}
+
+processing_text() {
+  echo "Migrating from $DATA_VERSION to $1..."
+  echo "Applying migration for $1"
+}
+
+# Update version after successful migration step
+update_version() {
+  DATA_VERSION=$1
+  perl -pi -e 's/^DATA_VERSION=.*/DATA_VERSION='"$DATA_VERSION"'/' $VERSION_FILE
+  echo "Migration to $DATA_VERSION complete."
+}
+
+# Migration process for 1.0.0
+migration_100() {
+  perl -pi -e 's/^(\s*#?\s*)(?!export\s)(.*\S.*)/$1export $2/' $ENV_FILE
+  perl -pi -e 's/^(\s*#?\s*)(?!export\s)(.*\S.*)/$1export $2/' $ENV_LOCAL_FILE
+}
+
+# Migration process for future 1.1.0
+migration_110() {
+  echo "N/A"
+}
+
+echo "Current data version: $DATA_VERSION"
+
+# Sequentially apply all migrations from current version up to the latest
+for TARGET_VERSION in "${VERSIONS[@]}"; do
+  if version_lt "$DATA_VERSION" "$TARGET_VERSION"; then
+    case "$TARGET_VERSION" in
+      "1.0.0")
+        processing_text $TARGET_VERSION
+        migration_100
+        update_version $TARGET_VERSION
+        IS_RUNNING=true
+        ;;
+      "1.1.0")
+        processing_text $TARGET_VERSION
+        migration_110
+        update_version $TARGET_VERSION
+        IS_RUNNING=true
+        ;;
+    esac
+  fi
+done
+
+if [ "$IS_RUNNING" = "true" ]; then
+  # Re-load variables
+  [ -f $ENV_FILE ] && . $ENV_FILE
+  [ -f $ENV_LOCAL_FILE ] && . $ENV_LOCAL_FILE
+
+  echo -e "All necessary migrations applied. Current version: $DATA_VERSION\n"
+else
+  echo -e "No data migration necessary.\n"
+fi
