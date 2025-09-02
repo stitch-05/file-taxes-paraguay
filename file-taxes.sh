@@ -8,8 +8,127 @@ WORKING_DIR=$(dirname "$0")
 
 . $WORKING_DIR/functions
 
+# Handle arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --username=*|-u=*)
+      USERNAME="${1#*=}"
+      shift
+      ;;
+    --username|-u)
+      USERNAME="$2"
+      shift 2
+      ;;
+    --password=*|-p=*)
+      PASSWORD="${1#*=}"
+      shift
+      ;;
+    --password|-p)
+      PASSWORD="$2"
+      shift 2
+      ;;
+    --notification-service=*|-ns=*)
+      NOTIFICATION_SERVICE="${1#*=}"
+      shift
+      ;;
+    --notification-service|-ns)
+      NOTIFICATION_SERVICE="$2"
+      shift 2
+      ;;
+    --pushover-token=*|-pt=*)
+      PUSHOVER_TOKEN="${1#*=}"
+      shift
+      ;;
+    --pushover-token|-pt)
+      PUSHOVER_TOKEN="$2"
+      shift 2
+      ;;
+    --pushover-user=*|-pu=*)
+      PUSHOVER_USER="${1#*=}"
+      shift
+      ;;
+    --pushover-user|-pu)
+      PUSHOVER_USER="$2"
+      shift 2
+      ;;
+    --signal-user=*|-su=*)
+      SIGNAL_USER="${1#*=}"
+      shift
+      ;;
+    --signal-user|-su)
+      SIGNAL_USER="$2"
+      shift 2
+      ;;
+    --signal-recipient=*|-sr=*)
+      SIGNAL_RECIPIENT="${1#*=}"
+      shift
+      ;;
+    --signal-recipient|-sr)
+      SIGNAL_RECIPIENT="$2"
+      shift 2
+      ;;
+    --message-prefix=*|-mp=*)
+      MESSAGE_PREFIX="${1#*=}"
+      shift
+      ;;
+    --message-prefix|-mp)
+      MESSAGE_PREFIX="$2"
+      shift 2
+      ;;
+    --wget-output=*|-wo=*)
+      WGET_OUTPUT="${1#*=}"
+      shift
+      ;;
+    --wget-output|-wo)
+      WGET_OUTPUT="$2"
+      shift 2
+      ;;
+    --wget-flags=*|-wf=*)
+      WGET_FLAGS="${1#*=}"
+      shift
+      ;;
+    --wget-flags|-wf)
+      WGET_FLAGS="$2"
+      shift 2
+      ;;
+    --help|-h)
+      SHOW_HELP=1
+      shift
+      ;;
+    *)
+      echo "Unknown argument $1"
+      shift
+      exit 1
+      ;;
+  esac
+done
+
+SCRIPT_NAME=$(basename "$0")
+if [ "$SHOW_HELP" = "1" ]; then
+  echo "Automatically file taxes in Paraguay."
+  echo -e "Usage: ./$SCRIPT_NAME [OPTIONS]\n"
+  echo -e "You can combine these arguments with .env and .env.local variables.\n"
+  echo -e "Startup:" 
+  echo "  -h --help                                 print this help information"
+  echo "  -u --username=\"USERNAME\"                  marangatu login username"
+  echo "  -p --username=\"PASSWORD\"                  marangatu login password"
+  echo -e "\nNotification:"
+  echo "  -ns --notification-service=\"SERVICE\"      Choose notification service: pushover or signal (default: none)"
+  echo "  -pt --pushover-token=\"TOKEN\"              Your application's API token. Create it at https://pushover.net"
+  echo "  -pu --pushover-user=\"USER\"                Your user/group key. Viewable in the Pushover's dashboard."
+  echo "  -su --signal-user=\"USER\"                  Phone number of the sender. Needs signal-cli."
+  echo "  -sr --signal-recipient=\"RECIPIENT\"        Phone number of the recipient. Needs signal-cli."
+  echo -e "  -mp --message-prefix=\"PREFIX\"             Prefix for notification message. Supports emojis. (default: \"🇵🇾 taxes\")"
+  echo -e "\nWget:"
+  echo "  -wo --wget-output=\"OUTPUT\"                wget output for debugging (default: -qO-)"
+  echo -e "  -wf --wget-flags=\"FLAGS\"                  wget flags in case you run into SSL certificate issues
+                                        (default: --cipher=DEFAULT:!DH --no-check-certificate)"
+
+  exit 1
+fi
+
 if [[ ! "$USERNAME" || ! "$PASSWORD"  ]]; then
-  echo "Please set login credentials in .env or .env.local"
+  echo -e "Please set login credentials in .env, .env.local, or as script arguments.\nSee ./$SCRIPT_NAME --help"
   exit 1
 fi
 
