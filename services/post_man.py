@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, smtplib, datetime, sys
+import os, smtplib, datetime, sys, ssl
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -69,7 +69,13 @@ class SMTPPostMan(object):
         if not self.pwd:
             server = smtplib.SMTP(self.smtp_host, self.smtp_port)
         else:
-            server = smtplib.SMTP_SSL(self.smtp_host, self.smtp_port)
+            try:
+                server = smtplib.SMTP(self.smtp_host, self.smtp_port)
+                server.starttls(context=ssl.create_default_context())
+            except Exception as e:
+                print("PROTOCOL_TLS failed", e)
+                print("Fallback: PROTOCOL_SSLv3")
+                server = smtplib.SMTP_SSL(self.smtp_host, self.smtp_port)
         try:
             if self.pwd:
                 server.login(self.addr, self.pwd)

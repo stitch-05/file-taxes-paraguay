@@ -90,7 +90,7 @@ SIGNAL_NUMBER=<your signal phone number>
 
 ### 5.2) Email
 Use SMTP to receive email notifications. Requires python3 installed. Add the following to `.env` or `.env.local`.
-Below example uses SMT submission feature from proton mail.
+Below example uses SMTP submission feature from proton mail.
 ````
 export SMTP_HOST="smtp.protonmail.ch"
 export SMTP_PORT="587"
