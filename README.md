@@ -43,7 +43,7 @@ Go to a directory of your choice and clone the repo:
 git clone https://github.com/stitch-05/file-taxes-paraguay.git && cd file-taxes-paraguay
 ````
 
-Either fill in your login information (`USERNAME` and `PASSWORD`) in `.env` or create `.env.local` and add those parameters there.
+Either fill in your login information (`USERNAME` and `PASSWORD`) in `.env`, create `.env.local` and add those parameters there or use script arguments. For more information see `./file-taxes.sh --help`.
 
 ## 3) Run
 ````
