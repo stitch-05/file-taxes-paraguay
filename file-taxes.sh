@@ -13,51 +13,20 @@ if [[ ! "$USERNAME" || ! "$PASSWORD"  ]]; then
   exit 1
 fi
 
+# Make sure to install wget
+if ! is_required wget; then
+  install_instructions wget
+fi
+
 # Make sure to install jq
-command -v jq >/dev/null 2>&1 || { 
-  echo >&2 "'jq' is required but not installed. Aborting."; 
-  
-  OS="$(uname -s)"
-
-  case "${OS}" in
-    Linux*)
-      echo "To install on a Debian based distro, run:"
-      echo "sudo apt update && sudo apt install jq"
-      echo ""
-      echo "To install on a RedHat based distro, run:"
-      echo "sudo dnf install jq"
-    ;;
-    Darwin*)
-      echo "To install on MacOS, run:"
-      echo "brew install jq"
-    ;;
-    *)          
-      echo "Install jq manually using your system's package manager or source code."
-  esac
-
-  exit 1; 
-}
+if ! is_required jq; then
+  install_instructions jq
+fi
 
 # Make sure to install xmllint
-command -v xmllint >/dev/null 2>&1 || { 
-  echo >&2 "'xmllint' is required but not installed. Aborting."; 
-  
-  OS="$(uname -s)"
-
-  case "${OS}" in
-    Linux*)
-      echo "To install on a Debian based distro, run:"
-      echo "sudo apt update && sudo apt install libxml2-utils"
-      echo ""
-      echo "To install on a RedHat based distro, run:"
-      echo "sudo dnf install libxml2"
-    ;;
-    *)          
-      echo "Install xmllint manually using your system's package manager or source code."
-  esac
-
-  exit 1; 
-}
+if ! is_required xmllint; then
+  install_instructions xmllint libxml2-utils libxml2
+fi
 
 COOKIES_FILE=$WORKING_DIR/cookies.txt
 

@@ -68,3 +68,37 @@ period() {
 
   echo "$YEAR$MONTH"
 }
+
+is_required() {
+  command -v $1 >/dev/null 2>&1 || { 
+    echo >&2 "'$1' is required but not installed. Aborting."; 
+    return 1
+  }
+}
+
+install_instructions() {
+  PKG=$1
+  DEB_PKG=${2:-$PKG}
+  RH_PKG=${3:-$PKG}
+  MAC_PKG=${4:-$PKG}
+  OS="$(uname -s)"
+
+  case "${OS}" in
+    Linux*)
+      echo "To install on a Debian based distro, run:"
+      echo "sudo apt update && sudo apt install $DEB_PKG"
+      echo ""
+      echo "To install on a RedHat based distro, run:"
+      echo "sudo dnf install $RH_PKG"
+    ;;
+    Darwin*)
+      echo "To install on MacOS, run:"
+      echo "brew install $MAC_PKG"
+    ;;
+    *)          
+      echo "Install $PKG manually using your system's package manager or source code."
+    ;;
+  esac
+
+  exit 1
+}
