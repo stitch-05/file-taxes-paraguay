@@ -68,6 +68,42 @@ while [[ $# -gt 0 ]]; do
       SIGNAL_RECIPIENT="$2"
       shift 2
       ;;
+    --smtp-server=*|-Ss=*)
+      SMTP_SERVER="${1#*=}"
+      SMTP_HOST="${SMTP_SERVER%:*}"
+      SMTP_PORT="${SMTP_SERVER#*:}"
+      shift
+      ;;
+    --smtp-server|-Ss)
+      SMTP_SERVER="$2"
+      SMTP_HOST="${SMTP_SERVER%:*}"
+      SMTP_PORT="${SMTP_SERVER#*:}"
+      shift 2
+      ;;
+    --smtp-user=*|-Su=*)
+      SMTP_ADDR="${1#*=}"
+      shift
+      ;;
+    --smtp-user|-Su)
+      SMTP_ADDR="$2"
+      shift 2
+      ;;
+    --smtp-password=*|-Sp=*)
+      SMTP_PWD="${1#*=}"
+      shift
+      ;;
+    --smtp-password|-Sp)
+      SMTP_PWD="$2"
+      shift 2
+      ;;
+    --smtp-recipient=*|-Sr=*)
+      SMTP_RECV="${1#*=}"
+      shift
+      ;;
+    --smtp-recipient|-Sr)
+      SMTP_RECV="$2"
+      shift 2
+      ;;
     --message-prefix=*|-mp=*)
       MESSAGE_PREFIX="${1#*=}"
       shift
@@ -114,16 +150,21 @@ if [ "$SHOW_HELP" = "1" ]; then
   echo "  -u --username=\"USERNAME\"                  marangatu login username"
   echo "  -p --username=\"PASSWORD\"                  marangatu login password"
   echo -e "\nNotification:"
-  echo "  -ns --notification-service=\"SERVICE\"      Choose notification service: pushover or signal (default: none)"
+  echo "  -ns --notification-service=\"SERVICE\"      Choose notification service: pushover, signal or email (default: none)"
   echo "  -pt --pushover-token=\"TOKEN\"              Your application's API token. Create it at https://pushover.net"
   echo "  -pu --pushover-user=\"USER\"                Your user/group key. Viewable in the Pushover's dashboard."
   echo "  -su --signal-user=\"USER\"                  Phone number of the sender. Needs signal-cli."
   echo "  -sr --signal-recipient=\"RECIPIENT\"        Phone number of the recipient. Needs signal-cli."
+  echo "  -Ss --smtp-server=\"HOST:PORT\"             SMTP server and port"
+  echo "  -Su --smtp-user=\"USER\"                    SMTP user is usually an email address used to login to your email provider's account."
+  echo "  -Sp --smtp-password=\"PASSWORD\"            SMTP password to login to your email provider's account."
+  echo "  -Sr --smtp-recipient=\"RECIPIENT\"          Email address of the recipient. Separate recipient email addresses with \`;\`"
+  echo "  -pu --pushover-user=\"USER\"                Your user/group key. Viewable in the Pushover's dashboard."
   echo -e "  -mp --message-prefix=\"PREFIX\"             Prefix for notification message. Supports emojis. (default: \"🇵🇾 taxes\")"
   echo -e "\nWget:"
   echo "  -wo --wget-output=\"OUTPUT\"                wget output for debugging (default: -qO-)"
   echo -e "  -wf --wget-flags=\"FLAGS\"                  wget flags in case you run into SSL certificate issues
-                                        (default: --cipher=DEFAULT:!DH --no-check-certificate)"
+                                              (default: --cipher=DEFAULT:!DH --no-check-certificate)"
 
   exit 1
 fi
