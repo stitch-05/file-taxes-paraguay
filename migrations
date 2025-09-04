@@ -1,14 +1,22 @@
 #!/bin/bash
 
-VERSION_FILE=$WORKING_DIR/.version
-[ -f $VERSION_FILE ] && . $VERSION_FILE
-
 ENV_FILE=$WORKING_DIR/.env
 ENV_LOCAL_FILE=$WORKING_DIR/.env.local
+VERSION_LOCAL_FILE=$WORKING_DIR/.version.local
 
+INITIAL_VERSION=0.0.1
 VERSIONS=("1.0.0")
 IS_RUNNING=false
 
+# Initialize local version file if you run the migration for the very first time
+if [ ! -f $VERSION_LOCAL_FILE ]; then
+  echo "DATA_VERSION=$INITIAL_VERSION" > $VERSION_LOCAL_FILE
+fi
+
+# Load local veresion file
+. $VERSION_LOCAL_FILE
+
+# Compare versions
 version_lt() {
   [ "$1" != "$2" ] && [[ "$(echo -e "$1\n$2" | sort -V | head -n1)" == "$1" ]]
 }
@@ -21,14 +29,14 @@ processing_text() {
 # Update version after successful migration step
 update_version() {
   DATA_VERSION=$1
-  perl -pi -e 's/^DATA_VERSION=.*/DATA_VERSION='"$DATA_VERSION"'/' $VERSION_FILE
+  perl -pi -e 's/^DATA_VERSION=.*/DATA_VERSION='"$DATA_VERSION"'/' $VERSION_LOCAL_FILE
   echo "Migration to $DATA_VERSION complete."
 }
 
 # Migration process for 1.0.0
 migration_100() {
-  perl -pi -e 's/^(\s*#?\s*)(?!export\s)(.*\S.*)/$1export $2/' $ENV_FILE
-  perl -pi -e 's/^(\s*#?\s*)(?!export\s)(.*\S.*)/$1export $2/' $ENV_LOCAL_FILE
+  perl -pi -e 's/^(\s*#\s*)(?=.*=)(?!.*export\b)(.*)/$1export $2/ || s/^(?=.*=)(?!.*export\b)(.*)/export $1/' $ENV_FILE
+  perl -pi -e 's/^(\s*#\s*)(?=.*=)(?!.*export\b)(.*)/$1export $2/ || s/^(?=.*=)(?!.*export\b)(.*)/export $1/' $ENV_LOCAL_FILE
 }
 
 # Migration process for future 1.1.0
