@@ -1,6 +1,7 @@
 #!/bin/bash
 
 WORKING_DIR=$(dirname "$0")
+SCRIPT_NAME=./$(basename "$0")
 
 ENV_FILE=$WORKING_DIR/.env
 ENV_LOCAL_FILE=$WORKING_DIR/.env.local
@@ -8,6 +9,44 @@ ENV_LOCAL_FILE=$WORKING_DIR/.env.local
 # Load variables
 [ -f $ENV_FILE ] && . $ENV_FILE
 [ -f $ENV_LOCAL_FILE ] && . $ENV_LOCAL_FILE
+
+show_usage() {
+  cat << EOF
+Automatically file taxes in Paraguay.
+Usage: $SCRIPT_NAME [OPTIONS]
+
+You can combine these arguments with .env and .env.local variables.
+
+Startup:
+  -h --help                               print this help information
+  -u --username=USERNAME                  marangatu login username
+  -p --username=PASSWORD                  marangatu login password
+
+Notification:
+  -ns --notification-service=SERVICE      Choose notification service: pushover, signal or email (default: none)
+  -pt --pushover-token=TOKEN              Your application's API token. Create it at https://pushover.net
+  -pu --pushover-user=USER                Your user/group key. Viewable in the Pushover's dashboard.
+  -su --signal-user=USER                  Phone number of the sender. Needs signal-cli.
+  -sr --signal-recipient=RECIPIENT        Phone number of the recipient. Needs signal-cli.
+  -Ss --smtp-server=HOST:PORT             SMTP server and port
+  -Su --smtp-user=USER                    SMTP user is usually an email address used to login to your email provider's account.
+  -Sp --smtp-password=PASSWORD            SMTP password to login to your email provider's account.
+  -Sr --smtp-recipient=RECIPIENT          Email address of the recipient. Separate recipient email addresses with \`;\`
+  -pu --pushover-user=USER                Your user/group key. Viewable in the Pushover's dashboard.
+  -mp --message-prefix=PREFIX             Prefix for notification message. Supports emojis. (default: 🇵🇾 taxes)
+
+Wget:
+  -wo --wget-output=OUTPUT                wget output for debugging (default: -qO-)"
+  -wf --wget-flags=FLAGS                  wget flags in case you run into SSL certificate issues
+                                            (default: --cipher=DEFAULT:!DH --no-check-certificate)"
+
+Example:
+  $SCRIPT_NAME -u USERNAME -p PASSWORD
+  $SCRIPT_NAME -ns signal -su +10123456789 +19876543210
+  $SCRIPT_NAME -wf "--cipher=DEFAULT:!DH --no-check-certificate"
+EOF
+  exit 1
+}
 
 # Handle arguments
 while [[ $# -gt 0 ]]; do
@@ -129,7 +168,7 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     --help|-h)
-      SHOW_HELP=1
+      show_usage
       shift
       ;;
     *)
@@ -140,40 +179,11 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-SCRIPT_NAME=$(basename "$0")
-if [ "$SHOW_HELP" = "1" ]; then
-  echo "Automatically file taxes in Paraguay."
-  echo -e "Usage: ./$SCRIPT_NAME [OPTIONS]\n"
-  echo -e "You can combine these arguments with .env and .env.local variables.\n"
-  echo -e "Startup:" 
-  echo "  -h --help                                 print this help information"
-  echo "  -u --username=\"USERNAME\"                  marangatu login username"
-  echo "  -p --username=\"PASSWORD\"                  marangatu login password"
-  echo -e "\nNotification:"
-  echo "  -ns --notification-service=\"SERVICE\"      Choose notification service: pushover, signal or email (default: none)"
-  echo "  -pt --pushover-token=\"TOKEN\"              Your application's API token. Create it at https://pushover.net"
-  echo "  -pu --pushover-user=\"USER\"                Your user/group key. Viewable in the Pushover's dashboard."
-  echo "  -su --signal-user=\"USER\"                  Phone number of the sender. Needs signal-cli."
-  echo "  -sr --signal-recipient=\"RECIPIENT\"        Phone number of the recipient. Needs signal-cli."
-  echo "  -Ss --smtp-server=\"HOST:PORT\"             SMTP server and port"
-  echo "  -Su --smtp-user=\"USER\"                    SMTP user is usually an email address used to login to your email provider's account."
-  echo "  -Sp --smtp-password=\"PASSWORD\"            SMTP password to login to your email provider's account."
-  echo "  -Sr --smtp-recipient=\"RECIPIENT\"          Email address of the recipient. Separate recipient email addresses with \`;\`"
-  echo "  -pu --pushover-user=\"USER\"                Your user/group key. Viewable in the Pushover's dashboard."
-  echo -e "  -mp --message-prefix=\"PREFIX\"             Prefix for notification message. Supports emojis. (default: \"🇵🇾 taxes\")"
-  echo -e "\nWget:"
-  echo "  -wo --wget-output=\"OUTPUT\"                wget output for debugging (default: -qO-)"
-  echo -e "  -wf --wget-flags=\"FLAGS\"                  wget flags in case you run into SSL certificate issues
-                                              (default: --cipher=DEFAULT:!DH --no-check-certificate)"
-
-  exit 1
-fi
-
 . $WORKING_DIR/migrations
 . $WORKING_DIR/functions
 
 if [[ ! "$USERNAME" || ! "$PASSWORD"  ]]; then
-  echo -e "Please set login credentials in .env, .env.local, or as script arguments.\nSee ./$SCRIPT_NAME --help"
+  echo -e "Please set login credentials in .env, .env.local, or as script arguments.\nSee $SCRIPT_NAME --help"
   exit 1
 fi
 
