@@ -14,7 +14,7 @@ echo "Preparing tax form..."
 METHOD_TAXPAYER=$(echo $MENU | jq --raw-output '.[] | select(.aplicacion == "'$FORM_AFFIDAVIT'") | .url')
 
 random_sleep
-TAXPAYER=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_TAXPAYER")
+TAXPAYER=$(send_request "$URL_BASE/$METHOD_TAXPAYER")
 
 if ! echo $TAXPAYER | grep -q "Presentar Declaración"; then
   send_message "Error" "Tax payer not found"
@@ -29,7 +29,7 @@ TOKEN_PERMIT=$(encrypt '{"ruc":"'$CEDULA'","dv":"'$DV'","periodo":"'$PERIOD'","i
 TOKEN_PERMIT=$(urlencode $TOKEN_PERMIT)
 
 random_sleep
-PERMIT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_PERMITE?t3=$TOKEN_PERMIT")
+PERMIT=$(send_request "$URL_BASE/$METHOD_PERMITE?t3=$TOKEN_PERMIT")
 
 IS_PERMITED=$(echo $PERMIT | jq --raw-output '.permite')
 
@@ -40,7 +40,7 @@ fi
 
 # Load tax form
 PERMIT_URL=$(echo $PERMIT | jq --raw-output '.url')
-DECLARATION_FORM=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_HOST$PERMIT_URL")
+DECLARATION_FORM=$(send_request "$URL_HOST$PERMIT_URL")
 
 # Get name and value from HTML inputs
 NAMES=$(xmllint --html --xpath "//input/@name" 2>/dev/null - <<< "$DECLARATION_FORM")
@@ -103,7 +103,7 @@ rm -rf $TMP_JSON
 # TODO: submit the form and get a response
 echo "Sending tax form..."
 random_sleep
-FINAL=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent="$UA" --post-data=$DATA "$URL_BASE/$METHOD_PRESENTAR")
+FINAL=$(send_request_json --post-data=$DATA "$URL_BASE/$METHOD_PRESENTAR")
 
 STATUS=$(echo $FINAL | jq --raw-output '.exito' 2>/dev/null)
 

@@ -74,9 +74,35 @@ period() {
   echo "$YEAR$MONTH"
 }
 
+send_request_login() {
+  _send_request --save-cookies "$COOKIES_FILE" --keep-session-cookies --auth-no-challenge "$@"
+}
+
+send_request_json() {
+  send_request --header="Content-Type:application/json" "$@"
+}
+
+send_request() {
+  _send_request --load-cookies "$COOKIES_FILE" "$@"
+}
+
+_send_request() {
+  local default_flags=(-O - --user-agent="$UA")
+
+  if [[ "${WGET_OUTPUT}" = "" || "${WGET_OUTPUT}" = "-d" ]]; then
+    echo "DEBUG: wget $WGET_FLAGS $WGET_OUTPUT ${default_flags[@]} $@" >&2
+  fi
+  wget $WGET_FLAGS $WGET_OUTPUT "${default_flags[@]}" "$@"
+}
+
+# Decode a base64 encoded row and parse it with jq
+decode_jq() {
+  echo ${row} | base64 --decode | jq -r ${1}
+}
+
 is_required() {
-  command -v $1 >/dev/null 2>&1 || { 
-    echo >&2 "'$1' is required but not installed. Aborting."; 
+  command -v $1 >/dev/null 2>&1 || {
+    echo >&2 "'$1' is required but not installed. Aborting.";
     return 1
   }
 }
@@ -100,7 +126,7 @@ install_instructions() {
       echo "To install on MacOS, run:"
       echo "brew install $MAC_PKG"
     ;;
-    *)          
+    *)
       echo "Install $PKG manually using your system's package manager or source code."
     ;;
   esac

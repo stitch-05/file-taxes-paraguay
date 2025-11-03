@@ -5,7 +5,7 @@ ENV_LOCAL_FILE=$WORKING_DIR/.env.local
 VERSION_LOCAL_FILE=$WORKING_DIR/.version.local
 
 INITIAL_VERSION=0.0.1
-VERSIONS=("1.0.0")
+VERSIONS=("1.0.0" "1.1.0")
 IS_RUNNING=false
 
 # Initialize local version file if you run the migration for the very first time
@@ -41,7 +41,21 @@ migration_100() {
 
 # Migration process for future 1.1.0
 migration_110() {
-  echo "N/A"
+  if [ -f $ENV_LOCAL_FILE ]; then
+    OUTPUT_VALUE=$(grep 'WGET_OUTPUT=' $ENV_LOCAL_FILE | cut -d'=' -f2-)
+
+    if [[ "$OUTPUT_VALUE" == *"-qO-"* ]]; then
+      REPLACE_VALUE="-q"
+    elif [[ "$OUTPUT_VALUE" == *"-dO-"* ]]; then
+      REPLACE_VALUE="-d"
+    elif [[ "$OUTPUT_VALUE" == *"-nvO-"* ]]; then
+      REPLACE_VALUE="-nv"
+    else
+      REPLACE_VALUE=""
+    fi
+
+    perl -pi -e "s/^export WGET_OUTPUT=$OUTPUT_VALUE\$/export WGET_OUTPUT=\\\"$REPLACE_VALUE\\\" # To Debug, change to \\\"\\\" or \\\"-d\\\"/" "$ENV_LOCAL_FILE"
+  fi
 }
 
 echo "Current data version: $DATA_VERSION"

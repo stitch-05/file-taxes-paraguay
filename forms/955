@@ -15,7 +15,7 @@ echo "Preparing receipt management..."
 METHOD_RECEIPT_MANAGEMENT=$(echo $MENU | jq --raw-output '.[] | select(.aplicacion == "'$FORM_AFFIDAVIT'") | .url')
 
 random_sleep
-RECEIPT_MANAGEMENT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_RECEIPT_MANAGEMENT")
+RECEIPT_MANAGEMENT=$(send_request "$URL_BASE/$METHOD_RECEIPT_MANAGEMENT")
 
 if ! echo $RECEIPT_MANAGEMENT | grep -q "Gestión de Comprobantes"; then
   send_message "Error" "Not able to manage receipts"
@@ -29,7 +29,7 @@ TOKEN_OPERATIONS=$(encrypt '{"ruc":"'$CEDULA'"}')
 TOKEN_OPERATIONS=$(urlencode $TOKEN_OPERATIONS)
 
 random_sleep
-OPERATIONS=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_OPERATIONS?t3=$TOKEN_OPERATIONS")
+OPERATIONS=$(send_request "$URL_BASE/$METHOD_OPERATIONS?t3=$TOKEN_OPERATIONS")
 
 CONFIRM_URL=$(echo $OPERATIONS | jq --raw-output '.[] | select(.id == "'$RECEIPT_MANAGEMENT_ID'") | .url')
 
@@ -42,7 +42,7 @@ fi
 echo "Retrieving receipt forms..."
 
 random_sleep
-RECEIPT_FORMS=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_BASE/$CONFIRM_URL")
+RECEIPT_FORMS=$(send_request "$URL_BASE/$CONFIRM_URL")
 
 if ! echo $RECEIPT_FORMS | grep -q "Registro de Comprobantes - Presentación de Talón"; then
   send_message "Error" "No receipt forms available"
@@ -57,7 +57,7 @@ TOKEN_TALON=$(urlencode $TOKEN_TALON)
 echo "Sending tax form $FORM..."
 
 random_sleep
-PROCESS_RECEIPTS=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent="$UA" "$URL_BASE/$METHOD_TALON?t3=$TOKEN_TALON")
+PROCESS_RECEIPTS=$(send_request_json "$URL_BASE/$METHOD_TALON?t3=$TOKEN_TALON")
 
 STATUS=$(echo $PROCESS_RECEIPTS | jq --raw-output '.exito' 2>/dev/null)
 

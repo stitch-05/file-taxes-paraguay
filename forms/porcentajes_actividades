@@ -9,7 +9,7 @@ LINK=$1
 
 echo "Retrieving taxpayer data..."
 random_sleep
-TAXPAYER_UPDATE=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_HOST$LINK")
+TAXPAYER_UPDATE=$(send_request "$URL_HOST$LINK")
 
 if ! echo $TAXPAYER_UPDATE | grep -q "Porcentajes de Ingreso por Actividades Económicas"; then
   send_message "Error" "No profile available"
@@ -21,7 +21,7 @@ TOKEN_RECOVER=$(urlencode $TOKEN_RECOVER)
 
 echo "Retrieving form data..."
 random_sleep
-RECOVER=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_RECOVER?t3=$TOKEN_RECOVER")
+RECOVER=$(send_request "$URL_BASE/$METHOD_RECOVER?t3=$TOKEN_RECOVER")
 
 GENERAL=$(echo $RECOVER | jq -r '.generales')
 INITIAL_DATE=$(echo $GENERAL | jq --raw-output '.operacionesFechaInicio')
@@ -40,7 +40,7 @@ DATA='{"ruc":"'$CEDULA'","categoria":"PORCENTAJES_ACTIVIDAD","captura":{"formaJu
 #
 # echo "Verifying data..."
 # random_sleep
-# CHECK_STEP=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent="$UA" --post-data="$DATA" "$URL_BASE/$METHOD_VERIFICATION")
+# CHECK_STEP=$(send_request_json --post-data="$DATA" "$URL_BASE/$METHOD_VERIFICATION")
 
 # if [[ "$CHECK_STEP" != "[]" ]]; then
 #   send_message "Error" "$CHECK_STEP"
@@ -49,7 +49,7 @@ DATA='{"ruc":"'$CEDULA'","categoria":"PORCENTAJES_ACTIVIDAD","captura":{"formaJu
 
 echo "Saving percentage data..."
 random_sleep
-SAVE=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent="$UA" --post-data="$DATA" "$URL_BASE/$METHOD_SAVE")
+SAVE=$(send_request_json --post-data="$DATA" "$URL_BASE/$METHOD_SAVE")
 
 STATUS=$(echo $SAVE | jq --raw-output '.exito' 2>/dev/null)
 
@@ -62,7 +62,7 @@ fi
 
 echo "Redirecting to document..."
 REDIRECT_URL=$(echo $SAVE | jq --raw-output '.url')
-REDIRECT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_BASE/$REDIRECT_URL")
+REDIRECT=$(send_request "$URL_BASE/$REDIRECT_URL")
 
 if ! echo $REDIRECT | grep -q "Enviar Solicitud"; then
   send_message "Error" "Can't update percentages"
@@ -77,10 +77,10 @@ DATA='{"id":"'$DOCUMENT_STRING'"}'
 
 echo "Confirming document..."
 random_sleep
-ACCEPT_DOCUMENT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --header='Content-Type:application/json' --user-agent="$UA" --post-data="$DATA" "$URL_BASE/$METHOD_ACCEPT_DOCUMENT")
+ACCEPT_DOCUMENT=$(send_request_json --post-data="$DATA" "$URL_BASE/$METHOD_ACCEPT_DOCUMENT")
 
 REDIRECT_URL=$(echo $ACCEPT_DOCUMENT | jq --raw-output '.url')
-REDIRECT=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" $HEADER "$URL_BASE/$REDIRECT_URL")
+REDIRECT=$(send_request "$URL_BASE/$REDIRECT_URL")
 
 # There isn't any info based on which I can confirm it has sent correctly
 MESSAGE="Info on the percentage of income from economic activity updated successfuly!"

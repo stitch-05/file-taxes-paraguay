@@ -36,7 +36,7 @@ Notification:
   -mp --message-prefix=PREFIX             Prefix for notification message. Supports emojis. (default: 🇵🇾 taxes)
 
 Wget:
-  -wo --wget-output=OUTPUT                wget output for debugging (default: -qO-)"
+  -wo --wget-output=OUTPUT                wget output for debugging (default: -q)"
   -wf --wget-flags=FLAGS                  wget flags in case you run into SSL certificate issues
                                             (default: --cipher=DEFAULT:!DH --no-check-certificate)"
 
@@ -222,7 +222,7 @@ UA=$(head -$LINE $UA_FILE | tail -1)
 
 echo "Checking session..."
 
-HOME=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE $URL_BASE)
+HOME=$(send_request "$URL_BASE")
 
 if echo $HOME | grep -q "/eset/logout"; then
   echo "Logged in"
@@ -230,7 +230,7 @@ else
   echo "Logging in..."
 
   random_sleep
-  LOGIN=$(wget $WGET_FLAGS $WGET_OUTPUT --save-cookies $COOKIES_FILE --keep-session-cookies --post-data "usuario=$USERNAME&clave=$PASSWORD" --auth-no-challenge --user-agent="$UA" $URL_BASE/$METHOD_AUTH)
+  LOGIN=$(send_request_login --post-data "usuario=$USERNAME&clave=$PASSWORD" "$URL_BASE/$METHOD_AUTH")
 
   if echo $LOGIN | grep -q "Usuario o Contraseña incorrectos"; then
     send_message "Error" "Incorrect login credentials"
@@ -247,7 +247,7 @@ TOKEN=$(encrypt {})
 TOKEN=$(urlencode $TOKEN)
 
 random_sleep
-PROFILE=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_PROFILE?t3=$TOKEN")
+PROFILE=$(send_request "$URL_BASE/$METHOD_PROFILE?t3=$TOKEN")
 
 CEDULA=$(echo $PROFILE | jq --raw-output '.rucActivo' 2>/dev/null)
 DV=$(echo $PROFILE | jq --raw-output '.dvActivo' 2>/dev/null)
@@ -264,19 +264,15 @@ fi
 echo "Checking profile info changes..."
 
 random_sleep
-CHECK_PROFILE=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_CHECK_PROFILE?t3=$TOKEN")
+CHECK_PROFILE=$(send_request "$URL_BASE/$METHOD_CHECK_PROFILE?t3=$TOKEN")
 
 MUST_UPDATE=$(echo "${CHECK_PROFILE}" | jq --raw-output '.debeActualizar' 2>/dev/null)
 
 if [[ "$MUST_UPDATE" == "true" ]]; then
   for row in $(echo "${CHECK_PROFILE}" | jq -r '.vinculos[] | @base64'); do
-    _jq() {
-      echo ${row} | base64 --decode | jq -r ${1}
-    }
-
-    NAME=$(_jq '.texto')
+    NAME=$(decode_jq '.texto')
     NAME_SAFE=$(echo "$NAME" | tr ' ' '_' | tr '[:upper:]' '[:lower:]')
-    LINK=$(_jq '.url')
+    LINK=$(decode_jq '.url')
 
     echo "================"
     echo "Profile data $NAME must be updated"
@@ -297,7 +293,7 @@ fi
 echo "Checking pending forms..."
 
 random_sleep
-PENDING=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_PENDING?t3=$TOKEN")
+PENDING=$(send_request "$URL_BASE/$METHOD_PENDING?t3=$TOKEN")
 
 PENDING_ACTIONS=$(echo "${PENDING}" | jq -r '.[] | @base64')
 
@@ -306,16 +302,12 @@ if [[ ! "$PENDING_ACTIONS" = "" ]]; then
   echo "Fetching menu items..."
 
   random_sleep
-  MENU=$(wget $WGET_FLAGS $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE/$METHOD_MENU?t3=$TOKEN")
+  MENU=$(send_request "$URL_BASE/$METHOD_MENU?t3=$TOKEN")
 
   # Fill out a pending form
   for row in $(echo "${PENDING}" | jq -r '.[] | @base64'); do
-    _jq() {
-      echo ${row} | base64 --decode | jq -r ${1}
-    }
-
-    TAX=$(_jq '.impuesto')
-    REQUESTED_PERIOD=$(_jq '.periodo')
+    TAX=$(decode_jq '.impuesto')
+    REQUESTED_PERIOD=$(decode_jq '.periodo')
     CURRENT_PERIOD=$(period)
 
     echo "================"
