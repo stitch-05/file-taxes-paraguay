@@ -74,6 +74,28 @@ period() {
   echo "$YEAR$MONTH"
 }
 
+download_statement() {
+  URL=$1
+  STATEMENT_NAME=$2
+  WGET_FLAGS_EXTRA=""
+
+  # Download the whole page with requisites for offline viewing
+  if [[ ! -f "$CACHE_DIR/fondo-vacio1.gif" ]]; then
+    WGET_FLAGS_EXTRA="--page-requisites"
+  fi
+
+  WGET_FLAGS_EXTRA="$WGET_FLAGS_EXTRA --adjust-extension --convert-links --timestamping --continue \
+  --timeout=15 --retry-connrefused --tries=3 --waitretry=1 --read-timeout=20 \
+  --random-wait --no-directories --directory-prefix=$CACHE_DIR"
+
+  echo "Downloading document no. $DOCUMENT, saving as $STATEMENT_NAME ..."
+  wget $WGET_FLAGS $WGET_FLAGS_EXTRA $WGET_OUTPUT --load-cookies $COOKIES_FILE --user-agent="$UA" "$URL_BASE$URL"
+
+  # Create HTML version
+  rm "$DOWNLOAD_DIR/$STATEMENT_NAME" 2>/dev/null
+  ln -s "../.cache$URL.html" "$DOWNLOAD_DIR/$STATEMENT_NAME"
+}
+
 send_request_login() {
   _send_request --save-cookies "$COOKIES_FILE" --keep-session-cookies --auth-no-challenge "$@"
 }

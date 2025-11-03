@@ -1,6 +1,7 @@
 #!/bin/bash
 
 WORKING_DIR=$(dirname "$0")
+CACHE_DIR=$WORKING_DIR/.cache
 SCRIPT_NAME=./$(basename "$0")
 
 ENV_FILE=$WORKING_DIR/.env
@@ -39,6 +40,10 @@ Wget:
   -wo --wget-output=OUTPUT                wget output for debugging (default: -q)"
   -wf --wget-flags=FLAGS                  wget flags in case you run into SSL certificate issues
                                             (default: --cipher=DEFAULT:!DH --no-check-certificate)"
+
+Downloads:
+  --ds --download-statements=BOOLEAN        Download tax statements (default: FALSE)
+  --dd --download-dir=DIR                 Directory to save downloaded tax statements (default: ./downloads/)
 
 Example:
   $SCRIPT_NAME -u USERNAME -p PASSWORD
@@ -167,6 +172,22 @@ while [[ $# -gt 0 ]]; do
       WGET_FLAGS="$2"
       shift 2
       ;;
+    --download-statements=*|-ds=*)
+      DOWNLOAD_STATEMENTS="${1#*=}"
+      shift
+      ;;
+    --download-statements|-ds)
+      DOWNLOAD_STATEMENTS="$2"
+      shift 2
+      ;;
+    --download-dir=*|-dd=*)
+      DOWNLOAD_DIR="${1#*=}"
+      shift
+      ;;
+    --download-dir|-dd)
+      DOWNLOAD_DIR="$2"
+      shift 2
+      ;;
     --help|-h)
       show_usage
       shift
@@ -212,6 +233,7 @@ METHOD_PROFILE="perfil/publico"
 METHOD_PENDING="perfil/vencimientos"
 METHOD_MENU="perfil/menu"
 METHOD_CHECK_PROFILE="perfil/informacionControlesPerfil"
+METHOD_DECLARATION="perfil/declaracion"
 
 # Load random user agent
 UA_FILE=$WORKING_DIR/user-agents.txt
@@ -289,6 +311,8 @@ else
   echo "No pending profile actions"
 fi
 
+CURRENT_PERIOD=$(period)
+
 # See if there's any pending forms
 echo "Checking pending forms..."
 
@@ -308,7 +332,6 @@ if [[ ! "$PENDING_ACTIONS" = "" ]]; then
   for row in $(echo "${PENDING}" | jq -r '.[] | @base64'); do
     TAX=$(decode_jq '.impuesto')
     REQUESTED_PERIOD=$(decode_jq '.periodo')
-    CURRENT_PERIOD=$(period)
 
     echo "================"
     echo "Tax form no. $TAX needs to be filed"
@@ -326,6 +349,40 @@ if [[ ! "$PENDING_ACTIONS" = "" ]]; then
   done
 else
   echo "No pending actions"
+fi
+
+if [ "$DOWNLOAD_STATEMENTS" = "TRUE" ]; then
+  if [ "$DOWNLOAD_DIR" = "" ]; then
+    DOWNLOAD_DIR="$WORKING_DIR/downloads"
+  fi
+
+  echo "Downloading tax statements..."
+  random_sleep
+  DECLARATION=$(send_request "$URL_BASE/$METHOD_DECLARATION?t3=$TOKEN")
+
+  DECLARATION_ACTIONS=$(echo "${DECLARATION}" | jq -r '.[] | @base64')
+
+  if [[ ! "$DECLARATION_ACTIONS" = "" ]]; then
+    # Create downloads directory
+    [[ ! -d "$DOWNLOAD_DIR" ]] && mkdir -p "$DOWNLOAD_DIR"
+
+    # Download statements
+    for row in $(echo $DECLARATION_ACTIONS); do
+      DOCUMENT=$(decode_jq '.numeroDocumento')
+      PERIOD=$(decode_jq '.periodo')
+      URL=$(decode_jq '.urlConsulta')
+      STATEMENT_NAME=${PERIOD}_$DOCUMENT.html
+
+      # Download only if not yet downloaded
+      if [[ ! -f "$DOWNLOAD_DIR/$STATEMENT_NAME" ]]; then
+        download_statement $URL $STATEMENT_NAME
+      else
+        echo "Document no. $DOCUMENT for period $PERIOD already downloaded"
+      fi
+    done
+  else
+    echo "No tax statements available for download"
+  fi
 fi
 
 exit 0
