@@ -107,8 +107,12 @@ FINAL=$(send_request_json --post-data=$DATA "$URL_BASE/$METHOD_PRESENTAR")
 
 STATUS=$(echo $FINAL | jq --raw-output '.exito' 2>/dev/null)
 
-if [[ "$STATUS" = "false" ]]; then
+if [[ "$STATUS" = "false" || "$STATUS" = "" ]]; then
   ERROR=$(echo $FINAL | jq --raw-output '.operacion.errores[0].descripcion' 2>/dev/null)
+
+  if [[ "$ERROR" = "" ]]; then
+    ERROR="No response received when filing VAT. Try again later."
+  fi
 
   send_message "Error" "$ERROR"
   return 1
