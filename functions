@@ -88,11 +88,17 @@ send_request() {
 
 _send_request() {
   local default_flags=(-O - --user-agent="$UA")
+  local debug_output="$WORKING_DIR/logs/wget_response_$(date +%s).txt"
 
-  if [[ "${WGET_OUTPUT}" = "" || "${WGET_OUTPUT}" = "-d" ]]; then
+  if is_debug; then
     echo "DEBUG: wget $WGET_FLAGS $WGET_OUTPUT ${default_flags[@]} $@" >&2
+    echo "DEBUG: Response saved to $debug_output" >&2
+    echo "=== Request: wget $WGET_FLAGS $WGET_OUTPUT ${default_flags[@]} $@" > "$debug_output"
+    echo "" >> "$debug_output"
+    wget $WGET_FLAGS $WGET_OUTPUT "${default_flags[@]}" "$@" | tee -a "$debug_output"
+  else
+    wget $WGET_FLAGS $WGET_OUTPUT "${default_flags[@]}" "$@"
   fi
-  wget $WGET_FLAGS $WGET_OUTPUT "${default_flags[@]}" "$@"
 }
 
 # Decode a base64 encoded row and parse it with jq
@@ -132,4 +138,8 @@ install_instructions() {
   esac
 
   exit 1
+}
+
+is_debug() {
+  [[ "${WGET_OUTPUT}" = "" || "${WGET_OUTPUT}" = "-d" ]]
 }

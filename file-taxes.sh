@@ -182,6 +182,11 @@ done
 . $WORKING_DIR/migrations
 . $WORKING_DIR/functions
 
+# Create logs folder if debug mode is enabled
+if is_debug; then
+  mkdir -p "$WORKING_DIR/logs"
+fi
+
 if [[ ! "$USERNAME" || ! "$PASSWORD"  ]]; then
   echo -e "Please set login credentials in .env, .env.local, or as script arguments.\nSee $SCRIPT_NAME --help"
   exit 1
